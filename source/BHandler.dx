@@ -1,0 +1,52 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<app/Handler.h>
+	<app/Looper.h>
+	<app/MessageFilter.h>
+
+class Handler handler
+	constructor
+		param const char*@1
+	function BHandler
+		input char*@1=0
+		return BHandler*%0
+	hook MessageReceived
+		param BMessage*@1
+		input BMessage*@1
+	virtual MessageReceived
+		input BMessage*@1
+	function Looper
+		input
+		return BLooper*%0
+	function SetName
+		input char*@1
+	function Name
+		input
+		return const char*%0
+	function SetNextHandler
+		input BHandler*@1
+	function NextHandler
+		input
+		return BHandler*%0
+	function AddFilter
+		input BMessageFilter*@1
+	function RemoveFilter
+		input BMessageFilter*@1
+		return bool%0
+	function SetFilterList
+		input BList*@1
+	function FilterList
+		input
+		return BList*%0
+	hook ResolveSpecifier
+		param BMessage*@1,int32@2,BMessage*@3,int32@4,const char*@5
+		input BMessage*@1,int32@2,BMessage*@3,int32@4,const char*@5
+		return BHandler*%0
+	hook GetSupportedSuites
+		param BMessage*@1
+		input BMessage*@1
+		return status_t%0

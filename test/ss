@@ -1,0 +1,107 @@
+'''Seaslug's Bethon Wrappers'''
+#i suppose i should document the problems i found with bethon.
+#there are three. the first is a bug (for sure), the other two could
+#be seen as a matter of preference.
+
+#1.) BFile's constructor throws B_ENTRY_NOT_FOUND every other instantiation.
+#    see File constructor for my (hackish) workaround (may not completely fix the problem?)
+
+#2.) It is too exception-happy for my tastes. thus my wrapper classes catch some exceptions
+#    and return them as values, because otherwise it forces the client programmer to use
+#    try: except: as part of the *ordinary* program flow, which is a big no-no. My solution
+#    is not the only possibility (i mean from the client programmer point of view).
+
+#3.) The organization of the modules is haphazard at best. Prefer having a module "Be" from
+#    which classes (and functions) can be imported. So, instead of:
+#    from BClass import BClass, error
+#    BClass_Error = error
+#    from BClass2 import BClass2, error
+#    BClass2_Error = error
+#    etc, ad nauseam, the programmer could use the following
+#    import Be
+#    or
+#    from Be import Class, Class2
+#    the "error"s could be made class variables (i think)
+#    this lends to the more natural notation:
+#    try:
+#      main_window = Be.Window(...)
+#    except Be.Window.error:
+#      ...
+
+#just my two cents.
+
+# now, if i could just figure out metaclasses, i'm sure
+# they could make this a lot easier.
+from SupportKit import B_ENTRY_NOT_FOUND
+
+from BNode import BNode, error
+class Node(BNode):
+  error = BNode_Error
+  def __init__(self, arg):
+    BNode.__init__(self, arg)
+    self.path = arg
+  def ReadAttr(self, name, length):
+    try:
+      return BNode.ReadAttr(self, name, 0,0, length)
+    except BNode_Error, x:
+      if x == B_ENTRY_NOT_FOUND:
+        return x
+      else
+        raise
+  def Path(self):
+    return self.path
+
+from BFile import BFile, error
+BFile_Error = error
+#this is probably not thread safe. oh well. i blame it on c++
+class File(BFile, Node):
+  toggle = 0
+  error = BFile_Error
+  def __init__(self, path):
+    global bfile_toggle
+    try:
+      BFile.__init__(self, path)
+      Node.__init__(self, path)
+      File.toggle = not File.toggle
+    except B_ENTRY_NOT_FOUND:
+      if File.toggle:
+        File.toggle = not File.toggle
+        __init__(self, path)
+      else:
+        raise
+  def ReadAttr(self, name, length):
+    return Node.ReadAttr(self, name, length)
+  #this is a hack to strip the zeros off c strings.
+  #i think there should be a more general mechanism here.
+  #i do like having a type function though.
+  def type(self):
+    type_plus_zero = ReadAttr(self, "BEOS:TYPE", 100)
+    return type_plus_zero[:len(type_plus_zero)-1]
+
+from BDirectory import BDirectory, error
+BDirectory_Error = error
+class Directory(BDirectory):
+  error = BDirectory_Error
+  def __init__(self, arg):
+    BDirectory.__init__(self, path)
+  def GetNextEntry(traverse = 0):
+    try:
+      return BDirectory.GetNextEntry(self, traverse)
+    except Directory.error, x:
+      if x == B_ENTRY_NOT_FOUND:
+        return x
+
+#I find the use of callbacks simpler, more concise,
+#and more flexible than inheritance.
+from BApplication import BApplication, error
+BApplication_Error = error
+class Application(BApplication):
+  error = BApplication_Error
+  def __init__(self, app_sig):
+    BApplication.__init__(self, app_sig)
+    self.pulse_functions = []
+  def register_pulse_function(self, func):
+    self.pulse_functions.append(func)
+  def Pulse(self):
+    for func in self.pulse_functions:
+      func()tti

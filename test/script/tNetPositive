@@ -1,0 +1,10 @@
+from BMessenger import BMessenger
+from scriptable import Scriptable
+import roster
+
+s = Scriptable(BMessenger(None, roster.find('NetPositive').team), ())
+w = Scriptable(s.Window[0], ())
+print w
+print w.Title
+print '--- OK:'
+w.Title = 'Fred'

@@ -1,0 +1,55 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/StatusBar.h>
+	<app/Looper.h>
+
+class StatusBar handler
+	base View
+	constructor
+		param BRect@1,const char*@2,const char*@3,const char*@4
+	function BStatusBar
+		input BRect@1,const char*@2,const char*@3=0,const char*@4=0
+		return BStatusBar*%0
+	function Label
+		input
+		return const char*%0
+	function TrailingLabel
+		input
+		return const char*%0
+	function Reset
+		input const char*@1=0,const char*@2=0
+	function BarColor
+		input
+		return rgb_color%0
+	function SetBarColor
+		input rgb_color@1
+	function BarHeight
+		input
+		return float%0
+	function SetBarHeight
+		input float@1
+	function CurrentValue
+		input
+		return float%0
+	function MaxValue
+		input
+		return float%0
+	function SetMaxValue
+		input float@1
+	function Text
+		input
+		return const char*%0
+	function SetText
+		input const char*@1
+	function TrailingText
+		input
+		return const char*%0
+	function SetTrailingText
+		input const char*@1
+	function Update
+		input float@1,const char*@2=0,const char*@3=0
+

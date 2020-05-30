@@ -1,0 +1,50 @@
+#!/boot/common/bin/python
+
+import os
+import struct
+import sys
+
+import BApplication
+from BMenuItem import BMenuItem
+from BMenu import BMenu
+from BBox import BBox
+from BMenuBar import BMenuBar
+from BWindow import BWindow
+from BMessage import BMessage
+from BTextControl import BTextControl
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NAVIGABLE,B_NOT_RESIZABLE,B_NOT_ZOOMABLE,B_PLAIN_BORDER,B_FANCY_BORDER
+
+from AppKit import B_QUIT_REQUESTED
+
+class QWindow(BWindow):
+	def __init__(self, frame):
+		BWindow.__init__(self, frame, self.__class__.__name__, B_TITLED_WINDOW, B_NOT_ZOOMABLE)
+		# set up a rectangle and instantiate a new view
+		r, t, l, b = self.Bounds()
+		self.top = BBox((r, t, l, b), 'top', B_FOLLOW_ALL, B_WILL_DRAW|B_NAVIGABLE, B_PLAIN_BORDER)
+		msg = BMessage(9)
+		self.xc = BTextControl((r + 20, t + 8, l - 20, b - 8), 'xc', 'Pass', '', msg)
+		self.top.AddChild(self.xc)
+        	self.AddChild(self.top);
+	def MessageReceived(self, msg):
+		x = msg.what
+		if x < 0 or x > 10000:
+			x = struct.pack('!l', x)
+		print 'Message', x
+		if msg.what == 9:
+			print 'text', self.xc.Text()
+		BWindow.MessageReceived(self, msg)
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class MenuApplication(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.Be-MenuWorldSample")
+	def ReadyToRun(self):
+		window = QWindow((100.0, 80.0, 460.0, 120.0))
+		window.Show()
+
+myApplication = MenuApplication()
+myApplication.Run()

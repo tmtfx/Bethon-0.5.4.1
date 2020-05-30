@@ -1,0 +1,10 @@
+import roster
+import BMessenger
+from scriptable import Scriptable
+
+t = roster.find('Network')
+m = BMessenger.BMessenger(None, t.team)
+s = Scriptable(m, ())
+w = Scriptable(s.Window[0], ())
+print w
+print w.Title

@@ -1,0 +1,65 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/File.h>
+	<storage/Entry.h>  # for entry_ref
+	<storage/Node.h>
+#	<storage/PositionIO.h>
+	<storage/Directory.h>
+
+class File ref
+	base Node PositionIO
+	constructor
+		param
+		param const entry_ref*@1,uint32@2
+		param const BEntry*@1,uint32@2
+		param const char*@1,uint32@2
+		param const BDirectory*@1,char*@2,uint32@3
+	function BFile
+		input
+		return BFile*%0
+		input entry_ref*@1,uint32@2
+		input BEntry*@1,uint32@2
+		input BDirectory*@1,char*@2,uint32@3
+		input char*@1,uint32@2
+	function SetTo
+		input entry_ref*@1,uint32@2
+		status status_t%0
+		input BEntry*@1,uint32@2
+		input BDirectory*@1,char*@2,uint32@3
+		input char*@1,uint32@2
+	function IsReadable
+		return bool%0
+	function IsWritable
+		return bool%0
+	function Read
+		input size_t@1
+		param char*%2[@1,size_t@1
+		status ssize_t%0
+		return char*%2[%0
+	function ReadAt
+		input off_t@1,size_t@2
+		param off_t@1,char*%3[@2,size_t@2
+		status ssize_t%0
+		return char*%3[%0
+	function Write
+		input pstring@1
+		param pstring@1.ptr,pstring@1.len
+		status ssize_t%0
+		return ssize_t%0
+	function WriteAt
+		input off_t@1,pstring@2
+		param off_t@1,pstring@2.ptr,pstring@2.len
+		status ssize_t%0
+		return ssize_t%0
+	function Seek
+		input off_t@1,uint32@2
+		return off_t%0
+	function Position
+		return off_t%0
+	function SetSize
+		input off_t@1
+		status status_t%0

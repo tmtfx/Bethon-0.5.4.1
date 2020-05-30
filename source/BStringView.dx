@@ -1,0 +1,25 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/StringView.h>
+	<app/Looper.h>
+
+class StringView handler
+	base View
+	constructor
+		param BRect@1,const char*@2,const char*@3,uint32@4,uint32@5
+	function BStringView
+		input BRect@1,char*@2,char*@3,uint32@4=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@5=B_WILL_DRAW
+		return BStringView*%0
+	function SetText
+		input char*@1
+	function Text
+		#  NB  I assume this must be non-null.
+		return const char*%0
+	function SetAlignment
+		input alignment@1
+	function Alignment
+		return alignment%0

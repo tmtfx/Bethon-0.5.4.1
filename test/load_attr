@@ -1,0 +1,15 @@
+#!/boot/common/bin/python
+
+import pickle
+import sys
+
+import BNode
+
+def attr(file, attrs):
+    n = BNode.BNode(file)
+    al = []
+    for tp, nm, val in attrs:
+	n.WriteAttr(nm, tp, 0, val)
+
+attrs = pickle.loads(sys.stdin.read())
+attr(sys.argv[1], attrs)

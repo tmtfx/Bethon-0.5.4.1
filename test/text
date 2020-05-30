@@ -1,0 +1,58 @@
+#!/boot/common/bin/python
+
+import BApplication
+from BBox import BBox
+from BWindow import BWindow
+from BMessage import BMessage
+from BTextView import BTextView
+from BFont import be_bold_font, be_plain_font
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NAVIGABLE,B_NOT_RESIZABLE,B_NOT_ZOOMABLE,B_PLAIN_BORDER,B_FANCY_BORDER,B_FONT_ALL
+
+from AppKit import B_QUIT_REQUESTED
+
+class V(BTextView):
+	def __init__(self, frame):
+		r, t, l, b = frame
+		bounds = (8.0, 8.0, l - r - 8.0, b - t - 8.0)
+		BTextView.__init__(self, frame, 'View', bounds, B_FOLLOW_ALL,
+			B_WILL_DRAW)
+		self.SetStylable(1)
+		self.MakeEditable(0)
+		stuff = 'One of these lines has a word\nthat is green in color.\nThe word that is that color\nis the word for that color.'
+		n = stuff.find('green')
+		self.SetText(stuff, [(0, be_plain_font, (0, 0, 0, 0)), (n, be_bold_font, (0, 150, 0, 0)), (n + 5, be_plain_font, (0, 0, 0, 0))])
+		# self.SetFontAndColor(n, n + 5, be_bold_font, B_FONT_ALL, (0, 150, 0, 0))
+		# print self.RunArray(0, len(stuff) - 1)
+		# print be_bold_font.GetFamilyAndStyle()
+	def FindWord(self, offset):
+		# print 'FindWord(%d)' % (offset,)
+		#  Normally, one would search for a useful word boundary.
+		return offset - 2, offset + 2
+
+class W(BWindow):
+	def __init__(self):
+		BWindow.__init__(self, (180.0, 100.0, 400.0, 250.0),
+			self.__class__.__name__,
+			B_TITLED_WINDOW, B_NOT_ZOOMABLE)
+		# set up a rectangle and instantiate a new view
+		bounds = self.Bounds()
+		r, t, l, b = bounds
+		self.top = BBox(bounds, 'top', B_FOLLOW_ALL, B_WILL_DRAW|B_NAVIGABLE, B_PLAIN_BORDER)
+		msg = BMessage(9)
+		self.xc = V((r + 20, t + 8, l - 20, b - 8))
+		self.top.AddChild(self.xc)
+        	self.AddChild(self.top);
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class Application(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.test")
+	def ReadyToRun(self):
+		window = W()
+		window.Show()
+
+myApplication = Application()
+myApplication.Run()

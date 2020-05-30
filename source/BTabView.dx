@@ -1,0 +1,47 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/TabView.h>
+class TabView handler
+	base View
+	constructor
+		param BRect@1,const char*@2,button_width@3,uint32@4,uint32@5
+	function BTabView
+		input BRect@1,const char*@2,button_width@3=B_WIDTH_AS_USUAL,uint32@4=B_FOLLOW_ALL,uint32@5=B_FULL_UPDATE_ON_RESIZE|B_WILL_DRAW|B_NAVIGABLE_JUMP|B_FRAME_EVENTS|B_NAVIGABLE
+		return BTabView*%0
+	function AddTab
+		input BView*@1!incref,BTab*@2=0
+	function RemoveTab
+		input int32@1
+	hook Select
+		param int32@1
+		input int32@1
+	virtual Select
+		input int32@1
+	function Selection
+		input
+		return int32%0
+	function SetFocusTab
+		input int32@1,bool@2
+	function FocusTab
+		input
+		return int32%0
+	function SetTabHeight
+		input float@1
+	function TabHeight
+		input
+		return float%0
+	function SetTabWidth
+		input button_width@1
+	function TabWidth
+		input
+		return button_width%0
+	function TabAt
+		input int32@1
+		return BTab*%0
+	function TabFrame
+		input int32@1
+		return BRect%0

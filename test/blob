@@ -1,0 +1,162 @@
+#!/boot/common/bin/python
+#
+#  Crude imitation of the clear colored button thing.
+#  Illustrates BView drawing, with bitmaps and everything.
+#
+import array
+import string
+
+import BApplication
+from BBitmap import BBitmap
+from BBox import BBox
+from BMessage import BMessage
+from BScreen import BScreen
+from BView import BView
+from BWindow import BWindow
+
+from AppKit import B_QUIT_REQUESTED
+from InterfaceKit import B_PLAIN_BORDER,B_NO_BORDER,B_FANCY_BORDER,B_TITLED_WINDOW,B_NOT_ZOOMABLE,B_NOT_RESIZABLE,B_WILL_DRAW,B_NAVIGABLE,B_FOLLOW_ALL,B_FOLLOW_LEFT,B_FOLLOW_TOP,B_FRAME_EVENTS,B_NAVIGABLE_JUMP,B_CMAP8
+
+class Blob(BView):
+	#  Color sets: 4 dark to light, highlight and contrasting text color.
+	green = ((0, 100, 0, 0), (0, 150, 0, 0), (90, 222, 90, 0),
+		 (160, 242, 110, 0), (246, 246, 246, 0), (255, 0, 0, 0))
+	red = ((100, 0, 0, 0), (150, 0, 0, 0), (242, 100, 90, 0),
+		(240, 176, 130, 0), (246, 246, 246, 0), (255, 255, 255, 0))
+	orange = ((120, 70, 0, 0), (220, 130, 0, 0), (250, 190, 0, 0),
+		(255, 240, 100, 0), (246, 246, 246, 0), (0, 100, 0, 0))
+	yellow = ((120, 70, 0, 0), (220, 190, 0, 0), (240, 220, 0, 0),
+		(255, 255, 100, 0), (246, 246, 246, 0), (100, 0, 0, 0))
+	blue = ((0, 0, 140, 0), (0, 0, 200, 0), (170, 170, 255, 0),
+		(150, 230, 245, 0), (246, 246, 246, 0), (255, 255, 0, 0))
+	purple = ((100, 0, 50, 0), (140, 0, 80, 0), (200, 0, 140, 0),
+		(240, 90, 200, 0), (246, 246, 246, 0), (255, 255, 0, 0))
+
+	stco = [green, yellow, orange, red, blue, purple]
+
+	def __init__(self, x, y, i):
+		w = 56
+		h = 20
+		BView.__init__(self, (x, y, x + w - 1, y + h - 1), '',
+			B_FOLLOW_LEFT|B_FOLLOW_TOP, B_WILL_DRAW)
+
+		self.width = w
+		self.height = h
+		self.i = i
+		self.text = ''
+	def Draw(self, rect):
+		w = self.width
+		h = self.height
+
+		#  Bitmap drawing width evidently must be multiple of 4 (?)
+		m = w % 4
+		if m:
+			m = 4 - m
+			w = w + m
+
+		rect = (0, 0, w - 1, h - 1)
+		loc, nrc, hic, hyc, hwc, txc = self.stco[self.i]
+		if hasattr(self, 'bm'):
+			bm = self.bm
+			bv = self.bv
+		else:
+			# Set up bitmap and its internal view.
+			bm = BBitmap(rect, B_CMAP8, 1)
+			bv = BView(rect, '', 0, 0)
+			bm.AddChild(bv)
+			self.bm = bm
+			self.bv = bv
+
+		bm.Lock()
+		if self.text:
+			#  Write text on one of the background colors,
+			#  save to bitmap.
+			bv.SetHighColor(hic)
+			bv.FillRect(rect)
+			bv.SetLowColor(hic)
+			bv.SetHighColor(txc)
+			bv.MovePenTo((0 + 6, h - 6))
+			bv.DrawString(self.text)
+			bv.Draw(rect)
+			bv.Sync()
+			textbits = array.array('c', bm.Bits())
+
+		#  Draw background, background shadow/highlight border.
+		bv.SetHighColor((216, 216, 216, 0))
+		bv.FillRect(rect)
+		bv.SetHighColor((140, 140, 140, 0))
+		bv.FillRoundRect((0, 0, w - 2, h - 2), 8.0, 6.0)
+		bv.SetHighColor((250, 250, 250, 0))
+		bv.FillRoundRect((1, 1, w - 1, h - 1), 8.0, 6.0)
+
+		#  Draw button colors.
+		bv.SetHighColor(loc)
+		bv.FillRoundRect((1, 1, w - 2, h - 2), 8.0, 6.0)
+		xt = h * 0.12
+		xb = h * 0.16
+		bv.SetHighColor(nrc)
+		bv.FillRoundRect((2, xt, w - 3, h - xb), 8.0, 6.0)
+		xt = h * 0.4
+		xb = h * 0.22
+		bv.SetHighColor(hic)
+		bv.FillRoundRect((4, h * 0.4, w - 4, h - xb), 6.0, 5.0)
+		bv.SetHighColor(hyc)
+		bv.FillRoundRect((6, h * 0.5, w - 6, h * 0.6), 5.0, 5.0)
+		bv.SetHighColor(hwc)
+		bv.FillRoundRect((7, 3, w - 7, 4), 1.0, 1.0)
+
+		#  Get stuff out of buffers.
+		bv.Draw(rect)
+		bv.Sync()
+
+		if self.text:
+			#  Copy text pixels back.
+			bits = array.array('c', bm.Bits())
+			z = textbits[0]
+			for i in range(len(textbits)):
+				x = textbits[i]
+				if x != z:
+					bits[i] = x
+			bm.SetBits(bits.tostring(), 0, B_CMAP8)
+
+		BView.DrawBitmap(self, bm, rect)
+	def MouseDown(self, p):
+		#  Clicked on me.
+		if self.text:
+			self.text = ''
+		else:
+			self.text = 'gumdrop'
+		BView.Invalidate(self)
+
+class Window(BWindow):
+	def __init__(self):
+		x = 400
+		y = 300
+		dx = 12
+		dy = 8
+		blobs = []
+		for i in range(len(Blob.stco)):
+			blob = Blob(dx, dy, i)
+			blobs.append(blob)
+			dy = dy + blob.height + 8
+		dx = dx + blob.width + 12
+		frame = (x, y, x + dx, y + dy)
+		BWindow.__init__(self, frame, 'Blob', B_TITLED_WINDOW, B_NOT_ZOOMABLE)
+		self.top = BBox((0, 0, dx, dy), '', B_FOLLOW_ALL, B_WILL_DRAW|B_FRAME_EVENTS|B_NAVIGABLE_JUMP, B_PLAIN_BORDER)
+		self.blobs = blobs
+		for blob in blobs:
+			self.top.AddChild(blob)
+		BWindow.AddChild(self, self.top)
+	def QuitRequested(self):
+		app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class A(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, 'application/x-vnd.Be-BasicButton')
+	def ReadyToRun(self):
+		self.window = Window()
+		self.window.Show()
+
+app = A()
+app.Run()

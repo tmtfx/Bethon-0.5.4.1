@@ -1,0 +1,25 @@
+#  Copyright 2001 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/AppFileInfo.h>
+
+class AppFileInfo ref
+	base NodeInfo
+	constructor
+		param
+		param BFile*@1
+	function BAppFileInfo
+		input
+		return BAppFileInfo*%0
+		input BFile*@1
+	function SetTo
+		input BFile*@1
+		status status_t%0
+	function GetVersionInfo
+		input version_kind@1
+		param &version_info%2,version_kind@1
+		status status_t%0
+		return version_info%2

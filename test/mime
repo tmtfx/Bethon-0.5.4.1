@@ -1,0 +1,30 @@
+#!/boot/common/bin/python
+import sys
+
+from BApplication import BApplication
+from BMimeType import BMimeType
+
+class App(BApplication):
+	def __init__(self):
+		BApplication.__init__(self,'application/x.vnd-appall')
+	def ReadyToRun(self):
+		if len(sys.argv) == 1:
+			mime = BMimeType()
+			m = mime.GetWildcardApps()
+			m.PrintToStream()
+			sys.exit(0)
+		if sys.argv[1] == '-guess':
+			static = BMimeType()
+			mime = static.GuessMimeType(sys.argv[2])
+		else:
+			mime = BMimeType(sys.argv[1])
+		print 'valid', mime.IsValid(), 'type', repr(mime.Type()), 'installed', mime.IsInstalled()
+		print 'preferred app', repr(mime.GetPreferredApp())
+		print 'supported by', mime.GetSupportingApps().PrintToStream()
+		print repr(mime.GetShortDescription())
+		msg = mime.GetFileExtensions()
+		msg.PrintToStream()
+		print repr(msg.FindString('extensions'))
+		sys.exit(0)
+a = App()
+a.Run()

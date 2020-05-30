@@ -1,0 +1,246 @@
+#!/boot/common/bin/python
+#
+#   Demo application with a variety of controls and graphics,
+#   most of the modules contributed by Eric Schinkel.
+#
+import struct
+import sys
+
+import BApplication
+from BBitmap import BBitmap
+from BBox import BBox
+from BButton import BButton
+from BCheckBox import BCheckBox
+from BColorControl import BColorControl
+from BMessage import BMessage
+from BRadioButton import BRadioButton
+from BStatusBar import BStatusBar
+from BStringView import BStringView
+from BSlider import BSlider
+from BWindow import BWindow
+
+from AppKit import B_QUIT_REQUESTED
+from InterfaceKit import B_TITLED_WINDOW,B_WILL_DRAW,B_CELLS_32x8,B_CMAP8,B_FOLLOW_ALL,B_NO_BORDER,B_PLAIN_BORDER,B_FANCY_BORDER,B_WILL_DRAW,B_FRAME_EVENTS,B_NAVIGABLE_JUMP
+
+from lay import HChock, VChock, HRack, VRack, HRow, VRow, HSlack, VSlack, HCenter, VCenter
+
+#
+#   Button with Bitmap.
+#
+#   Most of the BViews in this application are used "plain", with no
+#   subclassing because they work fine without any hooks.  This one
+#   uses the Draw() hook function, to draw out the bitmap on top of
+#   the button.
+#
+#   I suspect there is a better way to do this, but anyway, Draw()
+#   calls BButton::Draw(), then draws the bitmap directly over the top.
+#   The frame rect supplied by the caller is used for the origin, but
+#   the right and bottom values are ignored, since the size of the bitmap
+#   is known.
+#
+class PBut(BButton):
+	#  Yech, here's the bitmap as a string value.
+	normal = '\377\377\377\377\377\377\377\377\377\000\000\377\377\
+\377\377\377\377\377\377\377\377\377\377\377\377\377\000\000\000\377\377\377\
+\377\377\377\377\377\377\377\377\377\000\000\000\000\377\377\377\377\377\377\
+\000\000\000\000\000\000\377\377\377\000\377\377\377\377\377\000\000\377\377\
+\000\000\\\000\377\377\000\377\377\377\377\377\000\377\377\377\377\000\\\000\
+\000\377\000\377\377\377\000\000\377\377\377\377\000\000\\\\\000\000\000\377\
+\377\377\377\000\377\377\377\377\000\\\\\\\\\\\377\377\377\377\377\000\000\377\
+\377\000\000\\\\\\\\\\\000\000\377\377\377\377\000\000\000\000\377\\\\\\\\\\\\\
+\000\000\377\377\377\377\377\377\377\377\\\\\\\\\\\\\000\000\377\377\377\377\
+\377\377\377\000\000\000\\\\\\\\\377\377\377\377\377\377\377\377\000\000\000\
+\000\000\377\377\377\377\377\377\377\377\377\377\377\000\000\000\377\377\377\
+\377\377\377\377\377\377\377\377\377\377\000\377\377\377\377\377\377\377\377\
+\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377'
+	highlight = '\377\377\377\377\377\377\377\377\377%%\377\377\
+\377\377\377\377\377\377\377\377\377\377\377\377\377%%%\377\377\377\377\
+\377\377\377\377\377\377\377\377%%%%\377\377\377\377\377\377%%%%%%\000\
+\000\377%\377\377\377\377\377%%\377\377%%\233%\000\377%\377\377\377\377\
+\377%\377\000\000\377%\233%%\377%\377\377\377%%\377\377\000\000%%\233\233\
+%%%\377\377\377\377%\377\377\377\377%\233\233\233\233\233--\377\377\377%%\
+\377\377%%\233\233\233\233\233--\377\377\377\377%%%%\377\233\233\233\233\
+\233\233--\377\377\377\377\377\377\377-\233\233\233\233\233\233--\377\377\
+\377\377\377\377----\233\233\233\233\377\377\377\377\377\377\377\377-----\
+\377\377\377\377\377\377\377\377\377\377\377---\377\377\377\377\377\377\
+\377\377\377\377\377\377\377-\377\377\377\377\377\377\377\377\377\377\377\
+\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377'
+	def __init__(self, frame, name, msg):
+		self.nbits = BBitmap((0, 0, 15, 15), B_CMAP8)
+		self.nbits.SetBits(self.normal, 0, B_CMAP8)
+		self.hbits = BBitmap((0, 0, 15, 15), B_CMAP8)
+		self.hbits.SetBits(self.highlight, 0, B_CMAP8)
+		# l, t, r, b = frame
+		# frame = (l, t, l + 24, t + 24)
+		frame = (4, 4, 28, 28)
+		BButton.__init__(self, frame, name, '', msg)
+	def Draw(self, rect):
+		BButton.Draw(self, rect)
+		inset = (4, 4, 20, 20)
+		if self.Value():
+			self.DrawBitmap(self.hbits, inset)
+		else:
+			self.DrawBitmap(self.nbits, inset)
+
+class WBox(BBox):
+	def __init__(self, dx, dy, layout):
+		BBox.__init__(self, (0, 0, dx, dy), 'box', B_FOLLOW_ALL,
+			B_WILL_DRAW|B_FRAME_EVENTS|B_NAVIGABLE_JUMP,
+			B_PLAIN_BORDER)
+		self.layout = layout
+	def FrameResized(self, w, h):
+		# pass
+		# a, b, x, y = self.Bounds()
+		# print (a, b, x, y), (w, h)
+		# self.layout.layout(0, 0, (x, y))
+		self.layout.layout(0, 0, (w, h))
+
+
+class Doodad(BWindow):
+	#  Constants to identify the control that posted a message.
+	BUTTON = 1
+	CHECKBOX = 2
+	SLIDER = 3
+	CLRCTL = 4
+	HOTRADIO = 5
+	TEPIDRADIO = 6
+	COOLRADIO = 7
+
+	def __init__(self):
+		dumfrm = (4, 4, 8, 8)
+		self.button = PBut(dumfrm, 'T', BMessage(self.BUTTON))
+		self.bar = BStatusBar(dumfrm, 'bar',
+			'start', 'end')
+		self.cb = BCheckBox(dumfrm, 'CB',
+			'ck', BMessage(self.CHECKBOX))
+		# self.slider = BSlider((40, 40, 292, 64), 'slider',
+		self.slider = BSlider(dumfrm, 'slider',
+			 'percent', BMessage(self.SLIDER), 0, 100)
+		self.slidex = BStringView(dumfrm, 'slidex',
+			'0.0')
+		self.clrctl = BColorControl((8, 8), B_CELLS_32x8, 8.0,
+			'colors', BMessage(self.CLRCTL), 0)
+		self.hotradio = BRadioButton(dumfrm,
+			'hotradio', 'hot', BMessage(self.HOTRADIO))
+		self.tepidradio = BRadioButton(dumfrm,
+			'tepidradio', 'tepid', BMessage(self.TEPIDRADIO))
+		self.coolradio = BRadioButton(dumfrm,
+			'coolradio', 'cool', BMessage(self.COOLRADIO))
+		self.statement = BStringView(dumfrm,
+			'statement', '')
+
+		from BFont import be_bold_font
+		self.statement.SetFont(be_bold_font)
+		self.statement.SetFontSize(24.0)
+
+		layout = VCenter(
+		  HCenter(
+		    VRow([
+			HRow([
+				VCenter(HRack(self.button, max = 24.0),
+					grav = .9),
+				HChock(8.0),
+				HRack(self.bar, min = 220.0),
+				HSlack(min = 40.0, weight = 1.0),
+				VCenter(self.cb, grav = .8),
+				HChock(10.0)
+			]),
+			HRow([
+				HRack(self.slider, min = 260.0),
+				HRack(self.slidex, min = 80.0)
+			]),
+			VChock(8.0),
+			self.clrctl,
+			VChock(8.0),
+			HCenter(
+			  VRow([
+			    HRow([
+				self.hotradio,
+				HChock(18.0),
+				self.tepidradio, 
+				HChock(18.0),
+				self.coolradio,
+			    ]),
+			    HCenter(HRack(self.statement, min = 100.0))
+			  ]), min = 8.0, grav = .6),
+			VChock(8.0)
+		    ]), min = 16.0), min = 10.0)
+
+
+		dx, dy = layout.size()
+		layout.layout(0, 0, (dx, dy))
+
+		wxor = 400.0
+		wyor = 100.0
+		frame = (wxor, wyor, wxor + dx, wyor + dy)
+		BWindow.__init__(self, frame, 'doodad', B_TITLED_WINDOW,
+			B_WILL_DRAW)
+		self.wbox = WBox(dx, dy, layout)
+		self.box = self.wbox
+		self.box.AddChild(self.bar)
+		self.box.AddChild(self.button)
+		self.box.AddChild(self.cb)
+		self.box.AddChild(self.slider)
+		self.box.AddChild(self.slidex)
+		self.box.AddChild(self.clrctl)
+		self.box.AddChild(self.hotradio)
+		self.box.AddChild(self.tepidradio)
+		self.box.AddChild(self.coolradio)
+		self.box.AddChild(self.statement)
+        	self.AddChild(self.box)
+
+		self.value = 0
+
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+	def MessageReceived(self, msg):
+		if msg.what == self.BUTTON:
+			if self.value >= 100:
+				self.value = 0
+				self.bar.Reset('start', 'end')
+			else:
+				self.value = self.value + 20
+				self.bar.Update(20.0)
+		elif msg.what == self.CHECKBOX:
+			if msg.FindInt32('be:value'):
+				v = 0
+			else:
+				v = 1
+			self.clrctl.SetEnabled(v)
+
+		elif msg.what == self.SLIDER:
+			a = msg.FindInt32('be:value')
+			self.slidex.SetText('%.2f' % (a/100.0))
+
+		elif msg.what == self.CLRCTL:
+			x = msg.FindInt32('be:value')
+			#  Yer choice, twiddle bits or use struct module.
+			# b = (x >> 8) & 0xff
+			# g = (x >> 16) & 0xff
+			# r = (x >> 24) & 0xff
+
+			rgb = struct.unpack('!bbbb', struct.pack('!l', x))
+
+			self.slider.SetBarColor(rgb)
+			self.slider.Invalidate()
+
+		elif msg.what == self.HOTRADIO:
+			self.statement.SetText('Hot!')
+		elif msg.what == self.TEPIDRADIO:
+			self.statement.SetText('tepid...')
+		elif msg.what == self.COOLRADIO:
+			self.statement.SetText('Cool.')
+		else:
+			BWindow.MessageReceived(self, msg)
+
+class App(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, 'application/x-vnd.Doodad')
+	def ReadyToRun(self):
+		self.window = Doodad()
+		self.window.Show()
+
+app = App()
+app.Run()

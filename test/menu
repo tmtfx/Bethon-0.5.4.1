@@ -1,0 +1,156 @@
+#!/boot/common/bin/python
+#
+#  Various kinds of menus.
+#
+
+import BApplication
+from BMenuItem import BMenuItem
+from BMenu import BMenu
+from BBox import BBox
+from BButton import BButton
+from BMenuBar import BMenuBar
+from BWindow import BWindow
+from BMessage import BMessage
+from BPopUpMenu import BPopUpMenu
+from BSeparatorItem import BSeparatorItem
+from BStringView import BStringView
+
+from InterfaceKit import B_FOLLOW_ALL,B_FOLLOW_TOP,B_TITLED_WINDOW,B_WILL_DRAW,B_NAVIGABLE,B_NOT_RESIZABLE,B_NOT_ZOOMABLE,B_PLAIN_BORDER,B_FANCY_BORDER,B_NO_BORDER,B_ITEMS_IN_COLUMN
+
+from AppKit import B_QUIT_REQUESTED,B_KEY_UP,B_KEY_DOWN,B_MODIFIERS_CHANGED,B_UNMAPPED_KEY_DOWN
+
+#
+#  ClickBox is a Python BBox class that implements MouseDown().
+#  When it gets a click, it pops up its menu.
+#
+#  Incidentally, BeBook documentation says you have to delete
+#  BPopUpMenu after Go().  Don't see what they're talking about.
+#
+class ClickBox(BBox):
+	def __init__(self, frame):
+		BBox.__init__(self, frame, 'clickbox', B_FOLLOW_ALL,
+			B_WILL_DRAW|B_NAVIGABLE, B_FANCY_BORDER)
+		self.pop = BPopUpMenu('popup')
+		self.pop.AddItem(BMenuItem('Yes', BMessage(13)))
+		self.pop.AddItem(BMenuItem('No', BMessage(14)))
+	def MouseDown(self, point):
+		point = self.ConvertToScreen(point)
+		x = self.pop.Go(point, 1)
+		if x:
+			self.Looper().PostMessage(x.Message())
+
+
+class MenuWindow(BWindow):
+	#  Ad hoc menu hierarchy description, (menu, ...) at the menu bar,
+	#  where each menu is (name, (item,...)) and each item is
+	#  (message key, name) (or (None, None) for separator.)
+
+	Menus = (('File', ((1, 'Open'),
+			(B_QUIT_REQUESTED, 'Quit'))),
+		('Preferences', ((2, 'Hue'),
+			(3, 'Saturation'),
+			(4, 'Value'),
+			(None, None),
+			(5, 'Font')))
+		)
+
+	def __init__(self, frame):
+		BWindow.__init__(self, frame, 'Menus', B_TITLED_WINDOW,
+			B_NOT_ZOOMABLE)
+
+		bounds = self.Bounds()
+		self.bar = BMenuBar(bounds, 'Bar')
+		x, barheight = self.bar.GetPreferredSize()
+
+		self.mkey = {}
+		for menu, items in self.Menus:
+			menu = BMenu(menu)
+			for k, name in items:
+				if k is None:
+					menu.AddItem(BSeparatorItem())
+				else:
+					msg = BMessage(k)
+					menu.AddItem(BMenuItem(name, msg))
+					self.mkey[k] = name
+			self.bar.AddItem(menu)
+
+		l, t, r, b = bounds
+
+		self.top = BBox((l, t + barheight, r, b), 'top', B_FOLLOW_ALL,
+			B_WILL_DRAW|B_NAVIGABLE, B_NO_BORDER)
+		bounds = (0.0, 0.0, r, b - barheight)
+
+		#  Box inside top window view.
+		l, t, r, b = bounds
+		inbounds = (l + 22.0, t + 35.0, r - 22.0, b - 22.0)
+		clickbox = ClickBox(inbounds)
+		inbox = clickbox
+		inbox.SetLabel('Click me')
+		self.top.AddChild(inbox)
+
+		#  Popup to respond to keyboard.
+		self.pop = BPopUpMenu('pop', 0, 0)
+		self.pop.AddItem(BMenuItem('1st', BMessage(11)))
+		self.pop.AddItem(BMenuItem('2nd', BMessage(B_QUIT_REQUESTED)))
+		self.pop.AddItem(BMenuItem('3rd', BMessage(13)))
+
+		# No radio or label-from-marked.
+		ilpop = BPopUpMenu('style', 0, 0)
+		ilpop.AddItem(BMenuItem('Classic', BMessage(11)))
+		ilpop.AddItem(BMenuItem('Modern', BMessage(12)))
+		tbar = BMenuBar((26.0, 8.0, 86.0, 26.0), 'pop1',
+			B_FOLLOW_TOP, B_ITEMS_IN_COLUMN)
+		tbar.AddItem(ilpop)
+		self.top.AddChild(tbar)
+
+		#  Default PopUpMenu options.
+		ilpop = BPopUpMenu('popli')
+		m = BMenuItem('Classical', BMessage(11))
+		m.SetMarked(1)
+		ilpop.AddItem(m)
+		ilpop.AddItem(BMenuItem('Jazz', BMessage(12)))
+		tbar = BMenuBar((110.0, 8.0, 170.0, 26.0), 'pop2',
+			B_FOLLOW_TOP, B_ITEMS_IN_COLUMN)
+		tbar.AddItem(ilpop)
+		self.top.AddChild(tbar)
+
+        	self.AddChild(self.top)
+
+		#  Add the regular MenuBar after the little PopUpMenu
+		#  holders, so it can get the normal keyboard navigation
+		#  events - last one on wins.  The other MenuBars are
+		#  in the top Box, so the main MenuBar goes in after it.
+		#
+		self.AddChild(self.bar)
+
+	def MessageReceived(self, msg):
+		if msg.what == B_KEY_DOWN:
+			pick = self.pop.Go((200.0, 200.0), 1, 1)
+			if pick is None:
+				print 'No decision.'
+			else:
+				print 'Picked', repr(pick.Label())
+		elif msg.what in (B_KEY_UP, B_UNMAPPED_KEY_DOWN,
+				B_MODIFIERS_CHANGED):
+			pass
+		else:
+			name = self.mkey.get(msg.what)
+			if name is None:
+				print 'Message:', msg.what
+			else:
+				print 'You selected "%s"' % (name,)
+				return
+		BWindow.MessageReceived(self, msg)
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class MenuApplication(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.Be-MenuWorldSample")
+	def ReadyToRun(self):
+		window = MenuWindow((100.0, 80.0, 300.0, 260.0))
+		window.Show()
+
+myApplication = MenuApplication()
+myApplication.Run()

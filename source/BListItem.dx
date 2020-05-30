@@ -1,0 +1,57 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/ListItem.h>
+	<interface/View.h>
+
+#  Now, this is an abstract class for Be, but in the Python module
+#  it's going to be represented by a derived class as usual that
+#  defines the virtual functions.
+#  But those virtual functions pose a little problem.  They need the
+#  same Python thread access as any other virtual function, but this
+#  time there's no handler or looper base class.  The virtual functions
+#  get a BView* argument that would probably be the best bet - one can
+#  assume it's really a BpyView, so the right Looper is there.
+#
+#  So, note the "loophandler" keyword here.
+
+class ListItem virtual
+	constructor
+		param uint32@1=0,bool@2=1
+	function BListItem
+		input uint32@1=0,bool@2=1
+		return BListItem*%0
+	function Height
+		return float%0
+	function Width
+		return float%0
+	function IsSelected
+		return bool%0
+	function Select
+	function Deselect
+	function SetEnabled
+		input bool@1
+	function IsEnabled
+		return bool%0
+	function SetHeight
+		input float@1
+	function SetWidth
+		input float@1
+	# "abstract" - don't implement in this module, but in Python wrapper
+	hook DrawItem None
+		param BView*@1,BRect@2,bool@3=0
+		input BView*@1,BRect@2,bool@3=0
+		loophandler BView*@1
+	hook Update
+		param BView*@1,const BFont*@2
+		input BView*@1,const BFont*@2
+		loophandler BView*@1
+	function IsExpanded
+		return bool%0
+	function SetExpanded
+		input bool@1
+	function OutlineLevel
+		return uint32%0

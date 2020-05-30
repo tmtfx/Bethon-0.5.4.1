@@ -1,0 +1,90 @@
+<HTML>
+<HEAD><TITLE>How to write your own module</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+	<H2>
+How to make a new module BSinkmodule.so
+	</H2><P>
+Each module starts with a <CODE> .dx </CODE> file that has to be written by
+hand.
+	<P>
+First I read the .h into the editor, /boot/develop/headers/be/storage/Sink.h.
+It's not enough like the .dx file to be exactly a starting point, but it's
+at least a handy reference.  I will also need the Be Book reference at hand.
+	<P>
+The .dx file has a simple tab indented format.
+	<P>
+The "include" stanza should be fairly obvious.  The module's own include
+may be the only one needed here, the compiler will let you know if not.
+	<P>
+The "class" stanza is where everything happens.  The class statement
+itself might look like this:  "class Sink handler".  (Note, not BSink.)
+"handler" is a keyword here, that classifies this object in general
+terms.  The alternatives are "looper" and "abstract", neither of them
+all that common, and "ref" which is the default.  BView subclasses are
+all "handler", for example.
+	<P>
+The statements under "class" are all one kind or another of function
+definition, except "base", which declares the base class(es).  Don't
+spell out the whole inheritance tree - Window for example is a subclass
+of Looper, and _not_ Handler.  A base class supplies its functions
+and virtual functions, so the new BSink module adds only its unique
+new functions.
+	<P>
+There may be a "constructor" statement, if there are any virtual functions.
+Its "param" shows the parameters of the class constructor(s).  I omit any
+constructor where I can't handle the types.  I haven't bothered with
+BArchivable support, and I omit the usual constructor from BMessage.
+Virtual functions listed in the "hooks" section of the BeBook page are
+declared in "hook" statements.  (Not all virtual functions, only the hooks.)
+Non-hook functions are just functions, to be called from Python - and
+if a function is used both ways, it should be declared both ways (see
+MessageReceived.)  In this case, use the optional "C++ name" parameter
+to "function" to specify the base class, e.g. BHandler::MessageReceived,
+to avoid infinite recursion.
+	<P>
+Then there will be a bunch of "function"s, the class methods.  Instead
+of "param", these use "input", the arguments in the Python call.  There
+often will be some remapping, and the "param" following "input" shows
+this - if there's no "param", then the same argument list is presumed
+to pass right through to C++.  For a "hook" function the relationship
+is naturally inverted;  the "input" still declares the Python function's
+parameters, and but they're created from the C++ parameter values
+(and "input" still is the default for "param".)
+	<P>
+This part is very order dependent.  Start with "input".  If a "param"
+is needed, it follows, plus any "return" and "status" statements.  Then
+if there are any overloads with different parameter lists, more "input"
+lines may follow.  They inherit the preceding "return" & "status" by
+default, but of course not "param".  "return" is optional, default is
+no (None) return.
+	<P>
+The parameter list is comma separated - not comma separated with optional
+white space, just comma separated.  Types are declared with familiar C
+notation, and position index - e.g., char*@1=0 means first parameter is
+a string, but optional with default value NULL.  Parameter 0 is the
+function return.  Position indices like &status_t%3 mean that a variable
+of type status_t is passed to the C++ function to receive a return value,
+and of course it's allocated within the interface call because Python
+doesn't pass variables by reference like that.  Return values use the
+% notation too.  "status" is usually the status_t return of the C++
+function, and when declared as such it will be checked to see if an
+exception should be raised.
+	<P>
+There are plenty of parameter lists that are too tricky for me yet.
+To see a few of the more obscure notation tricks, see BFile.dx.
+	<P>
+There could easily be a few new incidental structs or classes that
+BSink will need.  I've been handling these as tuples, rather than
+making new Python types for everything.  That's all in sgrules.py,
+which just needs to be edited to add the new struct - ``follow the
+example of other structs.''  If the thing has a constructor, assignment
+operator, etc., make it a CTorTuple, not just TupleBase.
+	<P>
+BSink will also probably introduce some int typedefs.  Defined a load
+of these, already, in sgrules.py - look for "long".
+	<P>
+OK, that's more than anyone is going to read, anyway.  Good luck, have
+fun, write if you get it to work!
+	<P>
+Donn, donn@drizzle.com
+</BODY>

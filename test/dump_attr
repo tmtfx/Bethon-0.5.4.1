@@ -1,0 +1,23 @@
+#!/boot/common/bin/python
+import pickle
+import sys
+
+import BNode
+
+import bstructs
+
+def attr(file):
+    n = BNode.BNode(file)
+    al = []
+    while 1:
+	try:
+	    a = n.GetNextAttrName()
+	except:	
+	    a = None
+	if a is None:
+	    break
+	info = bstructs.attr_info(n.GetAttrInfo(a))
+	al.append((info.type, a, n.ReadAttr(a, 0, 0, 0x7fff)))
+    return al
+
+sys.stdout.write(pickle.dumps(attr(sys.argv[1])))

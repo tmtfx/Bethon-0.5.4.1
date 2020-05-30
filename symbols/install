@@ -1,0 +1,48 @@
+#!/bin/sh
+
+PYTHONVERSION=2.2
+if test -e ../pythonversion
+then
+	. ../pythonversion
+fi
+
+pvrs=$PYTHONVERSION
+case $pvrs in
+1.*)
+	PYTHONLIB=/boot/home/config/lib/python${pvrs}/plat-beos
+	;;
+*)
+	r=$(uname -r)
+	r=${r%%.*}
+	if [ ! -e /boot/home/.local/ ]; then mkdir /boot/home/.local/ /boot/home/.local/lib /boot/home/.local/lib/python${pvrs} /boot/home/.local/lib/python${pvrs}/site-packages 
+	else
+		if [ ! -e /boot/home/.local/lib ]; then mkdir /boot/home/.local/lib /boot/home/.local/lib/python${pvrs} /boot/home/.local/lib/python${pvrs}/site-packages
+		else
+			if [ ! -e /boot/home/.local/lib/python${pvrs} ]; then mkdir /boot/home/.local/lib/python${pvrs} /boot/home/.local/lib/python${pvrs}/site-packages
+			else
+				if [ ! -e /boot/home/.local/lib/python${pvrs}/site-packages ]; then mkdir /boot/home/.local/lib/python${pvrs}/site-packages
+				fi
+			fi
+		fi
+	fi
+	PYTHONLIB=/boot/home/.local/lib/python${pvrs}/site-packages
+	;;
+esac
+
+case $# in
+0)
+	set *.py;;
+*)
+	case $1 in
+	*.py) ;;
+	*)   echo 'usage: install [AppKit.py ...]'; exit 1;;
+	esac
+esac
+
+if test -d $PYTHONLIB
+then :
+else
+	echo $PYTHONLIB: 'No such directory'; exit 1
+fi
+
+cp -p $* $PYTHONLIB

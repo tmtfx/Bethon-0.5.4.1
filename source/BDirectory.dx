@@ -1,0 +1,91 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/Directory.h>
+	<storage/Entry.h>
+	<storage/File.h>
+	<storage/SymLink.h>
+
+class Directory var
+#	base Node EntryList
+	base Node
+	constructor
+		param
+		param const BEntry*@1
+		param const entry_ref*@1
+		param const char*@1
+		param const BDirectory*@1,const char*@2
+		param const node_ref*@1
+	function BDirectory
+		input
+		return BDirectory*%0
+		input BEntry*@1
+		input entry_ref*@1
+		input char*@1
+		input BDirectory*@1,char*@2
+		input node_ref*@1
+	function SetTo
+		input entry_ref*@1
+		status status_t%0
+		input BEntry*@1
+		input char*@1
+		input BDirectory*@1,char*@2
+		input node_ref*@1
+	function GetEntry
+		input
+		param &BEntry%1
+		return BEntry%1
+		status status_t%0
+	function IsRootDirectory
+		return bool%0
+	function FindEntry
+		input char*@1,bool@2=0
+		param char*@1,&BEntry%3,bool@2=0
+		status status_t%0
+		return BEntry%3
+	function Contains
+		input char*@1,int32@2=B_ANY_NODE
+		return bool%0
+		input BEntry*@1,int32@2=B_ANY_NODE
+	function GetStatFor
+		input char*@1
+		param char*@1,&struct stat%2
+		return struct stat%2
+		status status_t%0
+	function GetNextEntry
+		input bool@1=0
+		param &BEntry%2,bool@1
+		return BEntry%2
+		status status_t%0
+	function GetNextRef
+		input
+		param &entry_ref%1
+		return entry_ref%1
+		status status_t%0
+#	function GetNextDirents
+#		input
+#		param struct dirent%1[WHATS_REASONABLE,int32=WHATS_REASONABLE
+#		return struct dirent%1[%0
+	function Rewind
+		status status_t%0
+	function CountEntries
+		status int32%0
+		return int32%0
+	function CreateDirectory
+		input char*@1
+		param char*@1,&BDirectory%2
+		status status_t%0
+		return BDirectory%2
+	function CreateFile
+		input char*@1,bool@2=0
+		param char*@1,&BFile%3,bool@2=0
+		status status_t%0
+		return BFile%3
+	function CreateSymLink
+		input char*@1,char*@2
+		param char*@1,char*@2,&BSymLink%3
+		status status_t%0
+		return BSymLink%3

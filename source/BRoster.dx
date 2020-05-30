@@ -1,0 +1,81 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<app/Roster.h>
+
+class Roster ref
+	preset be_roster
+	constructor
+		param
+	function BRoster
+		#  Not to be called!
+		return BRoster*%0
+	function IsRunning
+		input char*@1
+		return bool%0
+		input entry_ref*@1
+	function TeamFor
+		input char*@1
+		return team_id%0
+		input entry_ref*@1
+	function GetAppList
+		input
+		param blist_team_id*%2
+		return blist_team_id*%2
+		input char*@1
+		param char*@1,blist_team_id*%2
+	function GetAppInfo
+		input char*@1
+		param char*@1,&app_info%2
+		status status_t%0
+		return app_info%2
+		input entry_ref*@1
+		param entry_ref*@1,&app_info%2
+	function GetRunningAppInfo
+		input team_id@1
+		param team_id@1,&app_info%2
+		status status_t%0
+		return app_info%2
+	function GetActiveAppInfo
+		input
+		param &app_info%2
+		status status_t%0
+		return app_info%2
+	function FindApp
+		input char*@1
+		param char*@1,&entry_ref%2
+		status status_t%0
+		return entry_ref%2
+		input entry_ref*@1
+		param entry_ref*@1,&entry_ref%2
+	function Broadcast
+		input BMessage*@1
+		status status_t%0
+		input BMessage*@1,BMessenger@2
+	function StartWatching
+		input BMessenger@1,uint32@2=B_REQUEST_LAUNCHED|B_REQUEST_QUIT
+		status status_t%0
+	function StopWatching
+		input BMessenger@1
+		status status_t%0
+	function ActivateApp
+		input team_id@1
+		status status_t%0
+	function Launch
+		input char*@1,BMessage*@2=0
+		param char*@1,BMessage*@2,&team_id%3
+		status status_t%0
+		return team_id%3
+		# input char*@1,blist_BMessage*@2=0
+		# param char*@1,blist_BMessage*@2,&team_id%3
+		input char*@1,argvp@2
+		param char*@1,argvp@2.len,argvp@2.ptr,&team_id%3
+		input entry_ref*@1,BMessage*@2=0
+		param entry_ref*@1,BMessage*@2,&team_id%3
+		# input entry_ref*@1,blist_BMessage*@2=0
+		# param entry_ref*@1,blist_BMessage*@2,&team_id%3
+		input entry_ref*@1,argvp@2
+		param entry_ref*@1,argvp@2.len,argvp@2.ptr,&team_id%3

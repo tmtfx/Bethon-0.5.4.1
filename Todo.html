@@ -1,0 +1,81 @@
+<HTML>
+<HEAD><TITLE>Stuff to do some day</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+	<H4>
+Binary packages
+	</H4><P>
+Look at moving the base functions to the Python core, to eliminate a
+bit of redundant code in every .so module.  Would mean .so modules
+would need to be built specially to run with a vanilla Python, so
+it's worth doing only if it saves a lot of overhead.
+	<P>
+	<H4>
+Development environment
+	</H4><P>
+A WYSIWYG graphic element composer would be extravagantly cool.
+An interactive Python window, debugger, stuff like that would
+be cool.  Icons for the little Python files, probably the same
+old serpent but something else if possible.
+	<P>
+	<H4>
+Scripting
+	</H4><P>
+I don't really get BeOS scripting, but maybe it's just waiting
+for someone to make some real use of it.  The C++ API is unfortunately
+one of the more difficult interfaces, but I hand-coded a BPropertyInfo
+module and there are some example programs in test/script.
+	<P>
+	<H4>
+More goodies
+	</H4><P>
+More modules of course.  There's a whole chunk of stuff I haven't
+thought about for a long time having to do with archiving, and
+including replicants etc.
+	<P>
+	<H4>
+Start over from scratch
+	</H4><P>
+What about SWIG?  What about Boost (http://www.boost.org/)?  C++
+support has reportedly improved a lot in the former, and the latter
+looks quite cool, but I have no real idea what's there.  We really
+have pretty modest needs here, thanks to the relatively conservative
+way the Be API uses C++.
+	<P>
+	<H4>
+Points where (OpenBeOS?) could provide some support
+	</H4><P>
+The whole thing revolves around getting a correct interface.
+Some aspects of that correctness are a much bigger issue for
+Python than they are for conventional C++ applications, because
+Python puts odd stresses on the system.  Particularly, storage.
+We will routinely free objects that any normal application would
+never think to free, for example, because Python mechanically
+frees anything with a 0 reference count.  Another aspect of
+the same problem is that it isn't the Python programmer's
+responsibility to allocate storage to pass to some function,
+it doesn't work that way.  If a function needs to write to
+memory allocated by the caller, that must be done in the
+interface.
+	<P>
+So we have to know what is correct.  Ideally, it would be
+really great to have information about the API that is both
+comprehensive in the way we need, and also machine readable
+so we can reliably generate the bulk of it with no human
+analysis.  Unambiguous, comprehensive machine readable information.
+I don't see how a multiple interface system could work any
+other way.
+	<P>
+Storage/ownership issues.  In/Out parameters (I suppose a lot of
+that can be inferred from presence or absence of "const".)  More
+of a problem, I think, is something like the BMessage that is
+consumed by BControl.  I need to know about that, so a reference
+can be kept, or maybe make a copy to give to the function.
+	<P>
+Could we get underneath C++?  I don't know if the C++ API is
+really a lot of implementation or only a veneer.  I have read
+comments that made it sound like there's a usable environment
+underneath it.  It's important in this project to follow the 
+C++ API, so unless it's a really thin veneer, we're probably
+better off on top of it.
+</BODY>
+</HTML>

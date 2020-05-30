@@ -1,0 +1,64 @@
+#!/boot/common/bin/python
+
+import os
+
+import BApplication
+from BStringItem import BStringItem
+from BListView import BListView
+from BWindow import BWindow
+from BMessage import BMessage
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NOT_RESIZABLE,B_NOT_ZOOMABLE
+
+from AppKit import B_QUIT_REQUESTED
+
+#  ListView test.
+#
+class HelloView(BListView):
+	HiWhat = 32
+	def __init__(self, rect, name, text):
+		BListView.__init__(self, rect, name)
+		for i in os.listdir('.'):
+			self.AddItem(BStringItem(i))
+		msg = BMessage(self.HiWhat)
+		self.SetInvocationMessage(msg)
+	def SelectionChanged(self):
+		print 'first selection:', self.CurrentSelection(0)
+	def checkup(self, msg):
+		count = self.CountItems()
+		i = 0
+		while i < count:
+			c = self.CurrentSelection(i)
+			if c >= 0:
+				t = self.ItemAt(c)
+				print c, ':', t.Text()
+				i = c + 1
+			else:
+				break
+
+class HelloWindow(BWindow):
+	def __init__(self, frame):
+		BWindow.__init__(self, frame, 'Hello', B_TITLED_WINDOW,
+			B_NOT_RESIZABLE|B_NOT_ZOOMABLE)
+		# set up a rectangle and instantiate a new view
+		self.view = HelloView(self.Bounds(), 'HelloView',
+			'Hello, world!')
+		self.AddChild(self.view)
+	def MessageReceived(self, msg):
+		if msg.what == self.view.HiWhat:
+			self.view.checkup(msg)
+		else:
+			BWindow.MessageReceived(self, msg)
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class HelloApplication(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.Be-HelloWorldSample")
+	def ReadyToRun(self):
+		window = HelloWindow((100, 80, 460, 120))
+		window.Show()
+
+myApplication = HelloApplication()
+myApplication.Run()

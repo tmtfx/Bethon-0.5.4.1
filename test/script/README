@@ -1,0 +1,32 @@
+- scriptable.py
+
+	Python instance whose attributes represent the scriptable
+	application, readable & writable.
+
+- browse
+
+	List attributes.  Select an attribute that returns another
+	scriptable messenger, get a new list window;  select an
+	attribute with another kind of value, it's displayed.
+
+
+I still haven't figured out what this is good for.  When I browse
+Network, for example, I find only the current tab view.  What I
+want, for my own use, is
+  - start Network
+  - select Services tab
+  - invoke Restore
+  - invoke Restart Networking
+    - wait out alert
+  - select Identity
+  - invoke Clear
+  - invoke Save
+  - invoke Don't restart Networking
+
+(OK, I no longer have to do that, thanks to "PC Card Wizard", but
+take that as an example of programmatic access to interface controls.)
+
+How do I select a tab?  How do I wait for the alert to finish?
+
+And this stuff is not reliable, it's too easy to crash.  Needs work
+to be any real use.

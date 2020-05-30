@@ -1,0 +1,76 @@
+include
+	<interface/Screen.h>
+
+class Screen ref
+	constructor
+		param screen_id@1
+	function BScreen
+		input screen_id@1=B_MAIN_SCREEN_ID
+		return BScreen*%0
+	function Frame
+		return BRect%0
+	function IndexForColor
+		input rgb_color@1
+		return uint8%0
+		input uint8@1,uint8@2,uint8@3,uint8@4=255
+	function ColorForIndex
+		input uint8@1
+		return rgb_color%0
+	function InvertIndex
+		input uint8@1
+		return uint8%0
+	function ColorSpace
+		return color_space%0
+	function GetDeviceInfo
+		param &accelerant_device_info%1
+		status status_t%0
+		return accelerant_device_info*%1
+	function GetModeList
+		param &display_mode*%1,&uint32%2
+		status status_t%0
+		return display_mode*%1[uint32%2
+	function GetMode
+		param &display_mode%1
+		status status_t%0
+		return display_mode%1
+	function SetMode
+		input display_mode*@1,bool=false
+		status status_t%0
+	function GetPixelClockLimits
+		input display_mode*@1
+		param display_mode*@1,&uint32%2,&uint32%3
+		status status_t%0
+		return uint32%2,uint32%3
+	function GetTimingConstraints
+		param &display_timing_constraints%1
+		status status_t%0
+		return display_timing_constraints%1
+	function ID
+		return screen_id%0
+	function IsValid
+		return bool%0
+	function ProposeMode
+		input display_mode*@1,const display_mode*@2,const display_mode*@3,
+		status status_t%0
+	function GetBitmap
+		input bool@1=true,BRect*@2=0
+		param &BBitmap*%3,bool@1,BRect*@2
+		return BBitmap*%3
+		status status_t%0
+	function ReadBitmap
+		input BBitmap*@1,bool@2=true,BRect*@3=0
+		status status_t%0
+	function SetDesktopColor
+		input rgb_color@1,bool=true
+	function DesktopColor
+		return rgb_color%0
+	function SetDPMS
+		input uint32@1
+	function DPMSState
+		return uint32%0
+	function DPMSCapabilities DPMSCapabilites
+		return uint32%0
+	function WaitForRetrace
+		input
+		status status_t%0
+		input bigtime_t@1

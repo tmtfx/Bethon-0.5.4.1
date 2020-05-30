@@ -1,0 +1,91 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/Font.h>
+	<interface/Rect.h>
+
+class Font
+	preset be_plain_font
+	preset be_bold_font
+	preset be_fixed_font
+	constructor
+		param
+		param BFont@1
+	function BFont
+		input
+		return BFont*%0
+		input BFont@1
+	function SetFamilyAndFace
+		input char*@1,uint16@2
+	function SetSize
+		input float@1
+	function SetShear
+		input float@1
+	function SetRotation
+		input float@1
+	function SetSpacing
+		input uint8@1
+	function SetEncoding
+		input uint8@1
+	function SetFace
+		input uint16@1
+	function SetFlags
+		input uint32@1
+	function GetFamilyAndStyle
+		input
+		param &char%1[B_FONT_FAMILY_LENGTH+1,&char%2[B_FONT_STYLE_LENGTH+1
+		return char%1,char%2
+	function Size
+		return float%0
+	function Shear
+		return float%0
+	function Rotation
+		return float%0
+	function Spacing
+		return uint8%0
+	function Encoding
+		return uint8%0
+	function Face
+		return uint16%0
+	function Flags
+		return uint32%0
+	function Direction
+		return font_direction%0
+	function IsFixed
+		return bool%0
+	function IsFullAndHalfFixed
+		return bool%0
+	function BoundingBox
+		return BRect%0
+	function Blocks
+		return unicode_block%0
+	function FileFormat
+		return font_file_format%0
+	function CountTuned
+		return int32%0
+	function GetTunedInfo
+		input int32@1
+		param int32@1,&tuned_font_info%2
+		return tuned_font_info%2
+	# function GetTruncatedStrings
+	#  Only guessing how this one works, but don't grok char*[] anyway.
+	# 	input char*[]@1,int32@2,uint32@3,float@4
+	# 	param char*[]@1,int32@2,uint32@3,float@4,char*[]%5
+	# 	return char*[]=5
+	function StringWidth
+		input pstring@1
+		param pstring@1.ptr,pstring@1.len
+		return float%0
+	# function GetStringWidths
+	# function GetEscapements
+	# function GetEdges
+	# function GetBoundingBoxes
+	# function GetGlyphShapes
+	# function GetHasGlyphs
+	function GetHeight
+		param &font_height%1
+		return font_height%1
+	function PrintToStream

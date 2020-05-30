@@ -1,0 +1,57 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/Bitmap.h>
+class Bitmap handler
+	constructor
+		param BRect@1,color_space@2,bool@3,bool@4
+	function BBitmap
+		input BRect@1,color_space@2,bool@3=false,bool@4=false
+		return BBitmap*%0
+	function AddChild
+		input BView*@1
+	function Bits
+		input
+		return const void*%0[<cobj->BitsLength()
+	function BitsLength
+		input
+		return int32%0
+	function Bounds
+		input
+		return BRect%0
+	function BytesPerRow
+		input
+		return int32%0
+	function ChildAt
+		input int32@1
+		return BView*%0
+	function CountChildren
+		input
+		return int32%0
+	function ColorSpace
+		input
+		return color_space%0
+	function FindView
+		input BPoint@1
+		input const char*@1
+		return BView*%0
+	function IsValid
+		input
+		return bool%0
+	function Lock
+		input
+		return bool%0
+	function Unlock
+		input
+	function IsLocked
+		input
+		return bool%0
+	function RemoveChild
+		input BView*@1
+		return bool%0
+	function SetBits
+		input pstring@1,int32@2,color_space@3
+		param pstring@1.ptr,pstring@1.len,int32@2,color_space@3

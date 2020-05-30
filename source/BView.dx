@@ -1,0 +1,364 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/View.h>
+	<app/Looper.h>
+	<interface/Region.h>
+
+class View handler
+	base Handler
+	constructor
+		param BRect@1,const char*@2,uint32@3,uint32@4
+	function BView
+		input BRect@1,char*@2,uint32@3,uint32@4
+		return BView*%0
+	hook	AttachedToWindow
+	hook	AllAttached
+	hook	DetachedFromWindow
+	hook	AllDetached
+	function AddChild
+		input BView*@1!incref,BView*@2=0
+	function RemoveChild
+		input BView*@1
+		return bool%0
+	function CountChildren
+		return int32%0
+	function ChildAt
+		input int32@1
+		return BView*%0
+	function NextSibling
+		return BView*%0
+	function PreviousSibling
+		return BView*%0
+	function RemoveSelf
+		return bool%0
+	function Window
+		return BWindow*%0
+	hook Draw
+		param BRect@1
+		input BRect@1
+	virtual Draw
+		input BRect@1
+	hook MouseDown
+		param BPoint@1
+		input BPoint@1
+	virtual MouseDown
+		input BPoint@1
+	hook MouseUp
+		param BPoint@1
+		input BPoint@1
+	virtual MouseUp
+		input BPoint@1
+	hook MouseMoved
+		param BPoint@1,uint32@2,const BMessage*@3
+		input BPoint@1,uint32@2,const BMessage*@3
+	virtual MouseMoved
+		input BPoint@1,uint32@2,const BMessage*@3
+		input BPoint@1,uint32@2,None@3
+	hook WindowActivated
+		param bool@1
+		input bool@1
+	hook KeyDown
+		param const char*@1,int32@2
+		input const char*@1,int32@2
+	virtual KeyDown
+		input const char*@1,int32@2
+	hook KeyUp
+		param const char*@1,int32@2
+		input const char*@1,int32@2
+	hook Pulse
+	hook FrameMoved
+		param BPoint@1
+		input BPoint@1
+	hook FrameResized
+		param float@1,float@2
+		input float@1,float@2
+	hook TargetedByScrollView
+		param BScrollView*@1
+		input BScrollView*@1
+	function BeginRectTracking
+		input BRect@1,uint32@2=B_TRACK_WHOLE_RECT
+	function EndRectTracking
+	function GetMouse
+		input bool@1=1
+		param &BPoint%2,&uint32%3,bool@1
+		return BPoint%2,uint32%3
+	function DragMessage
+		input BMessage*@1,BRect@2,BHandler*@3=0
+		input BMessage*@1,BBitmap*@2,BPoint@3,BHandler*@4=0
+		input BMessage*@1,BBitmap*@2,drawing_mode@3,BPoint@4,BHandler*@5=0
+	function FindView
+		input char*@1
+		return BView*%0
+	function Parent
+		return BView*%0
+	function Bounds
+		return BRect%0
+	function Frame
+		return BRect%0
+	function ConvertToScreen
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function ConvertFromScreen
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function ConvertToParent
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function ConvertFromParent
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function LeftTop
+		return BPoint%0
+	function GetClippingRegion
+		input
+		param &BRegion%1
+		return BRegion%1
+	function ConstrainClippingRegion
+		input BRegion*@1
+	function ClipToPicture
+		input BPicture*@1,BPoint@2=B_ORIGIN,bool@3=1 # I'm guessing
+	function ClipToInversePicture
+		input BPicture*@1,BPoint@2=B_ORIGIN,bool@3=1
+	function SetDrawingMode
+		input drawing_mode@1
+	function DrawingMode
+		return drawing_mode%0
+	function SetBlendingMode
+		input source_alpha@1,alpha_function@2
+	function GetBlendingMode
+		input
+		param &source_alpha%1,&alpha_function%2
+		return source_alpha%1,alpha_function%2
+	function SetPenSize
+		input ifloat@1
+	function PenSize
+		return ifloat%0
+	function SetViewColor
+		input rgb_color@1
+	function ViewColor
+		return rgb_color%0
+	function SetViewBitmap
+		input BBitmap*@1,BRect@2,BRect@3,uint32@4=B_FOLLOW_TOP|B_FOLLOW_LEFT,uint32@5=B_TILE_BITMAP
+		input BBitmap*@1,uint32@2=B_FOLLOW_TOP|B_FOLLOW_LEFT,uint32@3=B_TILE_BITMAP
+	function ClearViewBitmap
+	function SetHighColor
+		input rgb_color@1
+		input uint8@1,uint8@2,uint8@3,uint8@4=255
+	function HighColor
+		return rgb_color%0
+	function SetLowColor
+		input rgb_color@1
+		input uint8@1,uint8@2,uint8@3,uint8@4=255
+	function LowColor
+		return rgb_color%0
+	function SetLineMode
+		input cap_mode@1,join_mode@2,float@3=B_DEFAULT_MITER_LIMIT
+	function LineJoinMode
+		return join_mode%0
+	function LineCapMode
+		return cap_mode%0
+	function LineMiterLimit
+		return float%0
+	function SetOrigin
+		input BPoint@1
+		input ifloat@1,ifloat@2
+	function Origin
+		return BPoint%0
+	function PushState
+	function PopState
+	function MovePenTo
+		input BPoint@1
+		input ifloat@1,ifloat@2
+	function MovePenBy
+		input ifloat@1,ifloat@2
+	function PenLocation
+		return BPoint%0
+	function StrokeLine
+		input BPoint@1,pattern@2=B_SOLID_HIGH
+		input BPoint@1,BPoint@2,pattern@3=B_SOLID_HIGH
+	function BeginLineArray
+		input int32@1
+	function AddLine
+		input BPoint@1,BPoint@2,rgb_color@3
+	function EndLineArray
+	function StrokePolygon
+		input BPolygon*@1,bool@2=1,pattern@3=B_SOLID_HIGH
+		# input BPoint*@1[,BRect@2,bool@3=1,pattern@4=B_SOLID_HIGH
+		# param BPoint*@1[,int32%]1,BRect@2,bool@3=1,pattern@4
+
+# void StrokePolygon
+# const BPoint *ptArray, int32 numPts, BRect bounds, bool closed = true, pattern p = B_SOLID_HIGH
+	function FillPolygon
+		input BPolygon*@1,pattern@2=B_SOLID_HIGH
+# void FillPolygon
+# const BPolygon *aPolygon, pattern p = B_SOLID_HIGH
+# const BPoint *ptArray, int32 numPts, pattern p = B_SOLID_HIGH
+# const BPoint *ptArray, int32 numPts, BRect bounds, pattern p = B_SOLID_HIGH
+
+	function StrokeTriangle
+		input BPoint@1,BPoint@2,BPoint@3,BRect@4,pattern@5=B_SOLID_HIGH
+		input BPoint@1,BPoint@2,BPoint@3,pattern@4=B_SOLID_HIGH
+	function FillTriangle
+		input BPoint@1,BPoint@2,BPoint@3,BRect@4,pattern@5=B_SOLID_HIGH
+		input BPoint@1,BPoint@2,BPoint@3,pattern@4=B_SOLID_HIGH
+	function StrokeRect
+		input BRect@1,pattern@2=B_SOLID_HIGH
+	function FillRect
+		input BRect@1,pattern@2=B_SOLID_HIGH
+		input BRect@1
+	function FillRegion
+		input BRegion*@1,pattern@2=B_SOLID_HIGH
+	function InvertRect
+		input BRect@1
+	function StrokeRoundRect
+		input BRect@1,ifloat@2,ifloat@3,pattern@4=B_SOLID_HIGH
+	function FillRoundRect
+		input BRect@1,ifloat@2,ifloat@3,pattern@4=B_SOLID_HIGH
+		input BRect@1,ifloat@2,ifloat@3
+	function StrokeEllipse
+		input BPoint@1,ifloat@2,ifloat@3,pattern@4=B_SOLID_HIGH
+		input BRect@1,pattern@2=B_SOLID_HIGH
+	function FillEllipse
+		input BPoint@1,ifloat@2,ifloat@3,pattern@4=B_SOLID_HIGH
+		input BRect@1,pattern@2=B_SOLID_HIGH
+	function StrokeArc
+		input BPoint@1,ifloat@2,ifloat@3,ifloat@4,float@5,pattern@6=B_SOLID_HIGH
+		input BRect@1,ifloat@2,ifloat@3,pattern@4
+	function FillArc
+		input BPoint@1,ifloat@2,ifloat@3,float@4,float@5,pattern@6=B_SOLID_HIGH
+		input BRect@1,float@2,float@3,pattern@4
+#  Check what BPoint *controlPoints parameter is.
+#	function StrokeBezier
+#		input BPoint*@1,pattern@2=B_SOLID_HIGH
+#	function FillBezier
+#		input BPoint*@1,pattern@2=B_SOLID_HIGH
+	function StrokeShape
+		input BShape*@1,pattern@2=B_SOLID_HIGH
+	function FillShape
+		input BShape*@1,pattern@2=B_SOLID_HIGH
+	function CopyBits
+		input BRect@1,BRect@2
+	function DrawBitmapAsync
+		input BBitmap*@1,BRect@2,BRect@3
+		input BBitmap*@1,BRect@2
+		input BBitmap*@1,BPoint@2
+		input BBitmap*@1
+	function DrawBitmap
+		input BBitmap*@1,BRect@2,BRect@3
+		input BBitmap*@1,BRect@2
+		input BBitmap*@1,BPoint@2
+		input BBitmap*@1
+	function DrawChar
+		input char@1
+		input char@1,BPoint@2
+	function DrawString
+		input pstring@1,escapement_delta*@2=0
+		param pstring@1.ptr,pstring@1.len,escapement_delta*@2=0
+		input pstring@1.ptr,pstring@1.len,BPoint@2,escapement_delta*@3=0
+	function SetFont
+		input BFont*@1,uint32@2=B_FONT_ALL
+	function GetFont
+		input
+		param &BFont%1
+		return BFont%1
+	function StringWidth
+		input char*@1
+		return float%0
+# void GetStringWidths
+# char *stringArray[], int32 lengthArray[], int32 numStrings, float widthArray[]
+	function SetFontSize
+		input float@1
+	function ForceFontAliasing
+		input bool@1
+	function GetFontHeight
+		input
+		param font_height*@1
+		return font_height*%1
+	function Invalidate
+		input
+		input BRect@1
+	function SetDiskMode
+		input char*@1,long@2
+	function BeginPicture
+		input BPicture*@1
+	function AppendToPicture
+		input BPicture*@1
+	function EndPicture
+		return BPicture*%0
+	function DrawPicture
+		input BPicture*@1
+		input BPicture*@1,BPoint@2
+		input char*@1,long@2,BPoint@3
+	function DrawPictureAsync
+		input BPicture*@1
+		input BPicture*@1,BPoint@2
+		input char*@1,long@2,BPoint@3
+	function SetEventMask
+		input uint32@1,uint32@2
+	function EventMask
+		return uint32%0
+	function SetMouseEventMask
+		input uint32@1,uint32@2=0
+		status status_t%0
+	function SetFlags
+		input uint32@1
+	function SetResizingMode
+		input uint32@1
+	function ResizingMode
+		return uint32%0
+	function MoveBy
+		input ifloat@1,ifloat@2
+	function MoveTo
+		input BPoint@1
+		input ifloat@1,ifloat@2
+	function ResizeBy
+		input ifloat@1,ifloat@2
+	function ResizeTo
+		input ifloat@1,ifloat@2
+	function ScrollBy
+		input ifloat@1,ifloat@2
+	function ScrollTo
+		input ifloat@1,ifloat@2
+		input BPoint@1
+	hook MakeFocus
+		param bool@1
+		input bool@1
+	virtual MakeFocus
+		input bool@1=1
+	function IsFocus
+		return bool%0
+	function Show
+	function Hide
+	function IsHidden
+		return bool%0
+	function Flush
+	function Sync
+	hook GetPreferredSize
+		input
+		param float*@1,float*@2
+		return *float*@1,*float*@2
+	virtual GetPreferredSize
+		input
+		param &float%1,&float%2
+		return float%1,float%2
+	function ResizeToPreferred
+	function ScrollBar
+		input orientation@1
+		return BScrollBar*%0
+	# ResolveSpecifier is in BHandler module
+	function IsPrinting
+		return bool%0
+	function SetScale
+		input float@1

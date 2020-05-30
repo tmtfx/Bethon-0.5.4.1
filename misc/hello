@@ -1,0 +1,43 @@
+#!/boot/common/bin/python
+
+import sys
+
+import BApplication
+from BStringView import BStringView
+from BWindow import BWindow
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NOT_RESIZABLE,B_NOT_ZOOMABLE
+
+from AppKit import B_QUIT_REQUESTED
+
+class HelloView(BStringView):
+	def __init__(self, rect, name, text):
+		BStringView.__init__(self, rect, name, text, B_FOLLOW_ALL, B_WILL_DRAW)
+		#  be_bold_font can't be imported at the top of the script,
+		#  because at that point we don't have a BApplication.
+		#  I believe that means if be_bold_font is going to be used,
+		#  BFont can't be imported at the top.  This is not so good.
+
+		from BFont import be_bold_font
+		self.SetFont(be_bold_font)
+		self.SetFontSize(24.0)
+
+class HelloWindow(BWindow):
+	def __init__(self, frame):
+		BWindow.__init__(self, frame, 'Hello', B_TITLED_WINDOW, B_NOT_RESIZABLE|B_NOT_ZOOMABLE)
+		# set up a rectangle and instantiate a new view
+		self.view = HelloView(self.Bounds(), 'HelloView', 'Hello, world!')
+		self.AddChild(self.view)
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class HelloApplication(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.Be-HelloWorldSample")
+	def ReadyToRun(self):
+		window = HelloWindow((100.0, 80.0, 260.0, 120.0))
+		window.Show()
+
+myApplication = HelloApplication()
+myApplication.Run()

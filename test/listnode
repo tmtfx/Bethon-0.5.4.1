@@ -1,0 +1,31 @@
+#!/boot/common/bin/python
+import struct
+import sys
+
+import BNode
+from SupportKit import B_ENTRY_NOT_FOUND
+
+def int2str(i):
+        #  transfer 32 bit integer into string.
+        #  1129534546 -> 'CSTR'
+        return struct.pack('!l', i)
+
+def attr(file):
+    n = BNode.BNode(file)
+    while 1:
+        try:
+            name = n.GetNextAttrName()
+        except BNode.error, val:
+            if val[0] == B_ENTRY_NOT_FOUND:
+                break
+            else:
+                raise
+        type, size = n.GetAttrInfo(name)
+        type = int2str(type)
+        if type == 'CSTR':
+            # don't need trailing NUL.
+            size = size - 1
+        val = n.ReadAttr(name, 0, 0, size)
+        print type, name, repr(val)
+
+attr(sys.argv[1])

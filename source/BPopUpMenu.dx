@@ -1,0 +1,21 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/PopUpMenu.h>
+class PopUpMenu handler
+	base Menu
+	constructor
+		param const char*@1,bool@2,bool@3,menu_layout@4
+	function BPopUpMenu
+		input const char*@1,bool@2=true,bool@3=true,menu_layout@4=B_ITEMS_IN_COLUMN
+		return BPopUpMenu*%0
+	function Go
+		input BPoint@1,bool@2=0,bool@3=0,bool@4=0
+		return BMenuItem*%0=None
+		input BPoint@1,bool@2,bool@3,BRect@4,bool@4=0
+#	function ScreenLocation
+#		input
+#		return BPoint%1

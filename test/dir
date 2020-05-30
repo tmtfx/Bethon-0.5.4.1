@@ -1,0 +1,22 @@
+#!/boot/common/bin/python
+import BDirectory
+from SupportKit import B_ENTRY_NOT_FOUND, B_BAD_VALUE
+
+
+def iterate(fun, av, ef):
+	all = []
+	while 1:
+		try:
+			next = apply(fun, av)
+		except Exception, ev:
+			if ef(ev):
+				return all
+			else:
+				raise
+		else:
+			all.append(next)
+
+d = BDirectory.BDirectory('.')
+for entry in iterate(d.GetNextEntry, (), lambda e:
+	isinstance(e, BDirectory.error) and e.args[0] == B_ENTRY_NOT_FOUND):
+	print entry.GetPath().Path()

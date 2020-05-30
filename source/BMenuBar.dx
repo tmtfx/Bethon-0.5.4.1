@@ -1,0 +1,28 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/MenuBar.h>
+
+class MenuBar handler
+	base Menu
+	constructor
+		param BRect@1,const char*@2,uint32@3,menu_layout@4,bool@5
+	function BMenuBar
+		input BRect@1,const char*@2,uint32@3=B_FOLLOW_LEFT_RIGHT|B_FOLLOW_TOP,menu_layout@4=B_ITEMS_IN_ROW,bool@5=1
+		return BMenuBar*%0
+	function SetBorder
+		input menu_bar_border@1
+	function Border
+		return menu_bar_border%0
+	# According to BeBook, Hide/Show are like BView:: but re-implemented
+	# to override BMenu versions.  If they only call BView::Hide/Show,
+	# they're unneeded here as long as we don't export Hide/Show in
+	# BMenu.dx, because pseudo-inheritance will find the BView version.
+	# But of course we really have no idea what they do.
+	function Hide
+		input
+	function Show
+		input

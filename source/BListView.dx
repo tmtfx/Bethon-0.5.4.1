@@ -1,0 +1,116 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/ListView.h>
+
+class ListView handler
+	base View Invoker
+	constructor
+		param BRect@1,const char*@2,list_view_type@3,uint32@4,uint32@5
+	function BListView
+		input BRect@1,const char*@2,list_view_type@3=B_SINGLE_SELECTION_LIST,uint32@4=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@5=B_WILL_DRAW|B_FRAME_EVENTS|B_NAVIGABLE
+		return BListView*%0
+	function TargetedByScrollView
+		input BScrollView*@1
+	function ScrollTo
+		input float@1,float@2
+		input BPoint@1
+	function AddItem
+		input BListItem*@1!incref
+	#	input BListItem*@1
+		return bool%0
+		input BListItem*@1!incref,int32@2
+	#	input BListItem*@1,int32@2
+	# function AddList
+	# 	input BList*@1
+	# 	return bool%0
+	# 	input BList*@1,int32@2
+	function RemoveItem
+		# need to decref
+		input BListItem*@1
+		return bool%0
+		input int32@1
+		return BListItem*%0
+	function RemoveItems
+		# need to decref
+		input int32@1,int32@2
+		return bool%0
+	function SetSelectionMessage
+		input BMessage*@1!incref
+	#	input BMessage*@1
+	function SetInvocationMessage
+		input BMessage*@1!incref
+	#	input BMessage*@1
+	function SelectionMessage
+		return BMessage*%0
+	function SelectionCommand
+		return uint32%0
+	function InvocationMessage
+		return BMessage*%0
+	function InvocationCommand
+		return uint32%0
+	function SetListType
+		input list_view_type@1
+	function ListType
+		return list_view_type%0
+	function ItemAt
+		input int32@1
+		return BListItem*%0=None
+	function IndexOf
+		input BPoint@1
+		return int32%0
+		input BListItem*@1
+	function FirstItem
+		return BListItem*%0
+	function LastItem
+		return BListItem*%0
+	function HasItem
+		input BListItem*@1
+		return bool%0
+	function CountItems
+		return int32%0
+	function MakeEmpty
+	function IsEmpty
+		return bool%0
+	# Yeah, right!
+	# function DoForEach
+	# 	input bool(*)(BListItem*)@1
+	# 	input bool(*)(BListItem*,void*)@1,void*@2
+	# function Items
+	# 	return BListItem**%0
+	function InvalidateItem
+		input int32@1
+	function ScrollToSelection
+	function Select
+		input int32@1,bool@2=0
+		input int32@1,int32@2,bool@3=0
+	function IsItemSelected
+		input int32@1
+		return bool%0
+	function CurrentSelection
+		input int32@1=0
+		return int32%0
+	function DeselectAll
+	function DeselectExcept
+		input int32@1,int32@2
+	function Deselect
+		input int32@1
+	hook SelectionChanged
+	# function SortItems
+	# 	input int(*)(const void*,const void*)@1
+	function SwapItems
+		input int32@1,int32@2
+	function MoveItem
+		input int32@1,int32@2
+	function ReplaceItem
+		input int32@1,BListItem*@2
+	function ItemFrame
+		input int32@1
+		return BRect%0
+	hook InitiateDrag
+		param BPoint@1,int32@2,bool@3
+		input BPoint@1,int32@2,bool@3
+		return bool%0

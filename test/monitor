@@ -1,0 +1,27 @@
+#!/boot/common/bin/python
+import sys
+
+import BApplication
+import BNode
+
+from StorageKit import B_WATCH_ALL, B_WATCH_MOUNT
+
+from AppKit import B_QUIT_REQUESTED
+from BMessenger import BMessenger, be_app_messenger
+
+class HelloApplication(BApplication.BApplication):
+	def __init__(self, file):
+		BApplication.BApplication.__init__(self,
+			"application/x-vnd.Be-HelloWorldSample")
+		# node = BNode.BNode(file)
+		# print node
+		# n = node.GetNodeRef()
+		# print n
+		n = (0, 0)
+		BNode.watch_node(n, B_WATCH_MOUNT, be_app_messenger)
+	def MessageReceived(self, msg):
+		msg.PrintToStream()
+		BApplication.BApplication.MessageReceived(self, msg)
+
+myApplication = HelloApplication(sys.argv[1])
+myApplication.Run()

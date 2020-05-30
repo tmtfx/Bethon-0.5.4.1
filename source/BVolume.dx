@@ -1,0 +1,58 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/Volume.h>
+	<storage/StorageDefs.h>
+	<storage/Directory.h>
+
+class Volume var
+	constructor
+		param
+		param dev_t@1
+	function BVolume
+		input
+		return BVolume*%0
+		input dev_t@1
+	function InitCheck
+		# status status_t%0
+		return status_t%0
+	function SetTo
+		input dev_t@1
+		status status_t%0
+	function Unset
+	function Device
+		return dev_t%0
+	function GetRootDirectory
+		input
+		param &BDirectory%1
+		return BDirectory%1
+		status status_t%0
+	function Capacity
+		return off_t%0
+	function FreeBytes
+		return off_t%0
+	function GetName
+		input
+		param char%1[B_FILE_NAME_LENGTH
+		return char%1
+		status status_t%0
+	function SetName
+		input char*@1
+		status status_t%0
+	function IsRemovable
+		return bool%0
+	function IsReadOnly
+		return bool%0
+	function IsPersistent
+		return bool%0
+	function IsShared
+		return bool%0
+	function KnowsMime
+		return bool%0
+	function KnowsAttr
+		return bool%0
+	function KnowsQuery
+		return bool%0

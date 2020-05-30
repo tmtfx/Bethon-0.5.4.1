@@ -1,0 +1,4 @@
+#!/bin/sed -nf
+s;^.*\(B_[A-Z0-9a-z_]*\).*$;/\1/d;p
+s;^.*:\([0-9]*\): no matching function .*;\1d;p
+s;^.*:\([0-9]*\): parse error .*;\1d;p

@@ -1,0 +1,146 @@
+Sep 26 Donn 0.5.4
+    (general) various changes for Haiku
+Dec 7 François Revol 0.5.2
+    gen/module.m4
+	base class order fix for Python 2.3
+May 22 Lars Hanson 0.5.2
+    source/BEntryList.dx, BMenuField.dx, BQuery.dx, BVolumeRoster.dx
+	new modules
+    source/BFont.dx, BFont.dx, BOutlineView.dx, BView.dx
+	bug fixes, enhancements, non-standard platform support
+July 10 donn 0.5.2
+    sggen.py, sgparse.py, sgoutput.py
+	Static method support (BTranslationUtils::GetBitmap)
+    sggen.py
+	constructor return bug fix
+December 15 donn 0.5.1
+    sggen.py
+	Increment reference count for None in hook function parameters.
+November 28 donn 0.5.0
+    PyBase.h
+	Improve a couple of multi-statement macros.
+    PyBase.cpp
+	Lose base getattr function, store object type in baseItem.
+    module.m4, sggen.py
+	Extensive changes to use Python2.2 class/type features.
+	New m4 macros to cut down a little on `' quoting.
+November 2 donn 0.4.2
+    PyBase.h, module.m4, sggen.py, sgvar.py
+	Extend meaning of "internal" to include ordinary Be API objects,
+	as opposed to Bethon subclasses, as long as they're allocated
+	in conjunction with the Python object.  To reclaim memory.
+July 24 donn 0.4.1
+    sggen.py, BNode.dx
+	Add support for module level functions.
+December 23 donn 0.3.1
+    sggen.py
+	Generate doc strings for functions.
+December 23 donn 0.3.1
+    module.m4, defs.m4, sggen.py
+	Special run-time binding for be_bold_font et al.
+December 21 donn 0.3.1
+    sggen.py
+	Check for hook function execution prior to looper thread,
+	don't call into interpreter in this case.
+December 21 donn 0.3.1
+    sgparse.py, *.dx
+	New "virtual" functions are methods that propagate from the
+	base class definition, so we're always calling the derived
+	virtual function.  Remove extraneous definitions in derived
+	classes.  Automatically specify C++ class in function call
+	to avoid calling wrapper hook methods.
+December 20 donn 0.3.1
+    sgrules.py, module.m4, sggen.py
+	Handle a null pointer hook parameter as None, and pass 0 for
+	method parameter None (when that's declared as a possible input.)
+June 19 donn 0.3.0
+    sgrules.py, sgvar.py, sggen.py, BRoster.dx,BApplication.dx
+	Support for array parameters, so far just argv string arrays.
+	Invoke setup_p2c for function returns, from hooks, to get the
+	new function that checks if Bxxx type before loading the Bxxx
+	module.  (As it happens, in that case the check doesn't help!)
+June 6 donn 0.3.0
+    BView.dx,BTextView.dx,BAppFileInfo.dx,BNodeInfo.dx
+	New structs - text_run_array, version_info
+	New functions and objects.
+June 6 donn 0.3.0
+    sg*.py
+	General code reorganization, involving primarily the variable
+	analysis functions in sggen.py, moved to sgvar.py and substantially
+	rewritten.
+May 31 donn 0.2.3
+    PyMisc.cpp
+	Clear Python error register after calling a parameter conversion
+	function, cures "unraised exception" whine.
+April 27 donn 0.2.2
+    sgparse.py
+	Make "param" default from "input" in "hook" declarations.
+March 6 donn 0.2.2
+    PyBase.cpp, module.m4
+	Replace old type stamp with special attribute, after losing
+	the slot for the stamp in Python 2.1.
+February 23 donn 0.2.2
+    sgrules.py
+	Allow any numeric type in BRect, BPoint
+Begin year 2001
+November 15 donn 0.2.2
+    sggen.py, various .dx modules
+        "hook" function with more useful declaration options
+October 29 donn 0.2.1
+    wrap up release
+October 25 donn 0.2.1
+    BSlider.dx
+	add a couple of 5.0 methods to BSlider
+October 21 donn 0.2.1
+    build procedures, app.cpp
+	support new plat-beos[45] directory structure in Python 2.0
+September 10 donn 0.2.0
+    reorganize, add a few gimmicks.
+August 10 donn 0.1.9
+    various .dx modules
+	Add a lot of derived virtual functions that are documented
+	to be different from the base implementation, e.g., Draw,
+	SetEnabled.
+August 9 donn 0.1.9
+    sggen.py
+	Use PyTuple_SetItem directly instead of BuildValue("(OO)",...)
+August 7 donn 0.1.9
+    sggen.py
+	Tweak "dup" parameter code to check for null input value.
+August 3 donn 0.1.9
+    sgparse.py, module.m4, defs.m4
+	Complicate "preset" feature to accommodate be_app_messenger.
+July 27 donn 0.1.9
+    sggen.py
+	Support "<"variable as dimension.  (Cf. BBitmap Bits())
+July 22 donn 0.1.9
+    sggen.py
+	Support null pointer returns, %0=None.
+June 16 donn 0.1.8
+    BPropertyInfo.cpp
+	A little fixing up.
+    module.m4, defs.m4, sggen.py, PyBase.cpp
+	Pre-calculate offsets for base class casts.
+May 30 donn 0.1.7
+    various .dx
+	Changed old "return blah=0"s to "return blah%0", for consistency.
+	Fixed a bug or two in passing.
+    sggen.py
+	Fixed bug in return string&size dimensioning.
+May 5 donn 0.1.6
+    module.m4
+	Cast be_roster et al. to (void *) in cobj assignment, for gcc.
+    sggen.py
+	Change "dup" implementation to pass object instead of pointer,
+	i.e., BMessage& instead of BMessage*.
+    various .dx, sggen.py
+	Added const option for local variables.
+    various .dx
+	Added more include files for 5.0, e.g., StringItem includes View.h
+Oct 21 donn 0.1.3
+    sggen.py
+	Fixed inappropriate free() of external C++ objects.
+Sep 12 donn 0.1.2
+    sgrules.py
+	Fixed (hacked) char parameter handling (as opposed to normal char *).
+	Main affected module is BMenuItem, with its shortcuts &c.

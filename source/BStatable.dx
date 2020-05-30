@@ -1,0 +1,87 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/Statable.h>
+	<storage/Node.h>  # for node_ref
+	<storage/Volume.h>
+
+class Statable abstract
+	function IsFile
+		return bool%0
+	function IsDirectory
+		return bool%0
+	function IsSymLink
+		return bool%0
+	#  "abstract" function - don't implement in BStatable module,
+	#  but derived classes can implement.
+	virtual GetStat None
+		input
+		param &struct stat%1
+		status status_t%0
+		return struct stat%1
+	function GetNodeRef
+		input
+		param &node_ref%1
+		status status_t%0
+		return node_ref%1
+	function GetOwner
+		input
+		param &uid_t%1
+		status status_t%0
+		return uid_t%1
+	function SetOwner
+		input uid_t@1
+		status status_t%0
+	function GetGroup
+		input
+		param &gid_t%1
+		status status_t%0
+		return gid_t%1
+	function SetGroup
+		input gid_t@1
+		status status_t%0
+	function GetPermissions
+		input
+		param &mode_t%1
+		status status_t%0
+		return mode_t%1
+	function SetPermissions
+		input mode_t@1
+		status status_t%0
+	function GetSize
+		input
+		param &off_t%1
+		status status_t%0
+		return off_t%1
+	function GetCreationTime
+		input
+		param &time_t%1
+		status status_t%0
+		return time_t%1
+	function SetCreationTime
+		input time_t@1
+		status status_t%0
+	function GetModificationTime
+		input
+		param &time_t%1
+		status status_t%0
+		return time_t%1
+	function SetModificationTime
+		input time_t@1
+		status status_t%0
+	function GetAccessTime
+		input
+		param &time_t%1
+		status status_t%0
+		return time_t%1
+	function SetAccessTime
+		input time_t@1
+		status status_t%0
+	function GetVolume
+		input
+		param &BVolume%1
+		status status_t%0
+		return BVolume%1

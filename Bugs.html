@@ -1,0 +1,87 @@
+<HTML>
+<HEAD>
+<TITLE>Bugs</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<H2>System - issues like threads, storage etc.</H2><P>
+
+	<H4>
+Crash on quit
+	</H4><P>
+   Problem is at least much diminished, if 1) I create windows
+from only the main thread, and 2) don't exit before the non-main threads
+have finished.  This is probably a fact of life that is just much more
+poignant in Python.  It can be kind of difficult to achieve #2.
+	<P>
+	<H4>
+C storage vs. Python
+	</H4><P>
+   What a mess.  Most functions take their data pointer, do what they
+need and let it go.  Some, however, take the pointer and squirrel it away,
+in which case it needs an incref to pin the Python version up.
+This appears to be a case-by-case research project.
+Other functions may later release the pointer, and we'd like to decref
+at that point, but I can't bear to even think about that.
+Maybe just RemoveChild() and the like, but basically anything that
+overwrites or clears a pointer we made a reference for.
+The "incref" option is duly noted for a few functions, probably not all
+that need it.  A similar option "dup" is for cases where it seemed
+better for one reason or another to make a copy.
+	<P>
+	<H4>
+Reference counts for wrap instances
+	</H4><P>
+    Need more research, but I have reason to suspect that there are
+some extra references somewhere that keep the instance from ever
+getting to refcount 0 once it has been bound - despite attempts
+to unbind with bind(None).  Pretty sure some of them are actually
+references to member functions.  I will fix this stuff if I figure
+out how -- and the result may be inconvenient for you, if you have
+been depending on this bug that allows your BWindow objects to
+persist despite no apparent references!
+	<P>
+	<H4>
+Inheritance details
+	</H4><P>
+More virtual functions are now implemented in each derived class,
+now automatic for "virtual" functions where before (in 0.3.0) it
+had to be done by hand.  There certainly may be more virtual functions
+that need to be declared as such in source/*.dx.
+	<P>
+	<H4>
+Interpreter lock over-use
+	</H4><P>
+   Think about eliminating the thread unlock/lock around some of the
+function calls.  Most of them are fast and therefore don't need to
+release the interpreter lock.  Don't have any idea how much advantage
+this would be.  Since I am not hurting for performance, the incentive
+is not strong.
+
+<H2>Python interface</H2><P>
+<H2>Compiler</H2><P>
+	<H4>
+Function stanza order errors
+	</H4><P>
+   Warn or something when missing return/status etc. in first fn of
+multiple input overload, where return/status etc. was probably intended
+to apply to all.
+	<P>
+	<H4>
+Parsing
+	</H4><P>
+   More tolerant whitespace handling.
+	<P>
+	<H4>
+Unsupported types
+	</H4><P>
+    Array of char*, many of these in omitted BFont functions.  I think that
+can be addressed with new type, in sgrules, in general zero terminated vs.
+dimensioned.  (Arrives in 0.3.0, but some of those BFont functions are
+probably going to have to be done by hand, in the end.)
+	<P>
+    BList, pattern, various other compound types.
+	<P>
+	<H4>
+Horrible coding mess
+	</H4><P>
+    Rewrite everything, maybe ditch m4.

@@ -1,0 +1,195 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/Window.h>
+
+class Window looper
+	base Looper
+	constructor
+		param BRect@1,const char*@2,window_type@3,uint32@4,uint32@5
+		# param BRect@1,const char*@2,window_look@3,window_feel@4,uint32@5,uint32@6
+	function BWindow
+		input BRect@1,char*@2,window_type@3,uint32@4,uint32@5=B_CURRENT_WORKSPACE
+		return BWindow*%0
+		#  Hard for Python to disambiguate these two overloads.
+		# input BRect@1,const char*@2,window_look@3,window_feel@4,uint32@5,uint32@6=B_CURRENT_WORKSPACE
+	function AddChild
+		input BView*@1!incref,BView*@2=0
+	#	input BView*@1,BView*@2=0
+	function RemoveChild
+		input BView*@1
+		return bool%0
+	function CountChildren
+		return int32%0
+	function ChildAt
+		input int32@1
+		return BView*%0
+	hook FrameMoved
+		param BPoint@1
+		input BPoint@1
+	hook WorkspacesChanged
+		param uint32@1,uint32@2
+		input uint32@1,uint32@2
+	hook WorkspaceActivated
+		param int32@1,bool@2
+		input int32@1,bool@2
+	hook FrameResized
+		param float@1,float@2
+		input float@1,float@2
+	hook Minimize
+		param bool@1
+		input bool@1
+	virtual Minimize
+		input bool@1
+	hook Zoom
+		param BPoint@1,float@2,float@3
+		input BPoint@1,float@2,float@3
+	virtual Zoom
+	function SetZoomLimits
+		input float@1,float@2
+	hook ScreenChanged
+		param BRect@1,color_space@2
+		input BRect@1,color_space@2
+	function SetPulseRate
+		input bigtime_t@1
+	function PulseRate
+		return bigtime_t%0
+	function AddShortcut
+		input uint32@1,uint32@2,BMessage*@3
+		input uint32@1,uint32@2,BMessage*@3,BHandler*@4
+	function RemoveShortcut
+		input uint32@1,uint32@2
+	function SetDefaultButton
+		input BButton*@1
+	function DefaultButton
+		return BButton*%0
+	hook MenusBeginning
+	hook MenusEnded
+	function NeedsUpdate
+		return bool%0
+	function UpdateIfNeeded
+	function FindView
+		input char*@1
+		return BView*%0
+		input BPoint@1
+	function CurrentFocus
+		return BView*%0
+	function Activate
+		input bool@1=true
+	hook WindowActivated
+		param bool@1
+		input bool@1
+	function ConvertToScreen
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function ConvertFromScreen
+		input BPoint@1
+		return BPoint%0
+		input BRect@1
+		return BRect%0
+	function MoveBy
+		input float@1,float@2
+	function MoveTo
+		input BPoint@1
+		input float@1,float@2
+	function ResizeBy
+		input float@1,float@2
+	function ResizeTo
+		input float@1,float@2
+	function Show
+		code 2
+			if (!self->sysref) {
+			PyEval_InitThreads();
+			self->tstate = PyThreadState_New(PyThreadState_Get()->interp);
+			mkDerivative(self, dcobj)
+			dcobj->initPyThread(self->tstate);
+			self->sysref = 1;
+			}
+	function Hide
+	function IsHidden
+		return bool%0
+	function IsMinimized
+		return bool%0
+	function Flush
+	function Sync
+	function SendBehind
+		input BWindow*@1
+		status status_t%0
+	function DisableUpdates
+	function EnableUpdates
+	function BeginViewTransaction
+	function EndViewTransaction
+	function Bounds
+		return BRect%0
+	function Frame
+		return BRect%0
+	function Title
+		return const char*%0
+	function SetTitle
+		input char*@1
+	function IsFront
+		return bool%0
+	function IsActive
+		return bool%0
+	function SetKeyMenuBar
+		input BMenuBar*@1
+	function KeyMenuBar
+		return BMenuBar*%0
+	function SetSizeLimits
+		input float@1,float@2,float@3,float@4
+	function GetSizeLimits
+		input
+		param &float%1,&float%2,&float%3,&float%4
+		return float%1,float%2,float%3,float%4
+	function Workspaces
+		return uint32%0
+	function SetWorkspaces
+		input uint32@1
+	function LastMouseMovedView
+		return BView*%0
+	function AddToSubset
+		input BWindow*@1
+		status status_t%0
+	function RemoveFromSubset
+		input BWindow*@1
+		status status_t%0
+	function Perform
+		input perform_code@1,void*@2
+		status status_t%0
+	function SetType
+		input window_type@1
+		status status_t%0
+	function Type
+		return window_type%0
+	function SetLook
+		input window_look@1
+		status status_t%0
+	function Look
+		return window_look%0
+	function SetFeel
+		input window_feel@1
+		status status_t%0
+	function Feel
+		return window_feel%0
+	function SetFlags
+		input uint32@1
+		status status_t%0
+	function Flags
+		return uint32%0
+	function IsModal
+		return bool%0
+	function IsFloating
+		return bool%0
+	function SetWindowAlignment
+		input window_alignment@1,int32@2,int32@3=0,int32@4=0,int32@5=0,int32@6=0,int32@7=0,int32@8=0,int32@9=0
+		status status_t%0
+	function GetWindowAlignment
+		input
+		param &window_alignment%1,&int32%2,&int32%3,&int32%4,&int32%5,&int32%6,&int32%7,&int32%8,&int32%9
+		status status_t%0
+		return window_alignment%1,int32%2,int32%3,int32%4,int32%5,int32%6,int32%7,int32%8,int32%9

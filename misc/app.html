@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<TITLE>C++ wrapper</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+	<H2>
+C++ wrapper for Python wrapper for C++ BeOS API
+	</H2><P>
+Here's a C++ Python main().  You can set application attributes as
+per regular C++ application, like icon, single/multiple launch etc.
+	<P>
+In this example, the Python program is "hello".  That's set up in
+Makefile, which defines C pre-processor symbols so you don't have
+to edit the C++ program to make a different one for each program.
+	<P>
+The Makefile also loads attributes from a file - a goofy icon and
+some other ordinary stuff.  The file is a Python ``pickle'' archive,
+dumped from an executable file where I had defined these attributes
+with FileTypes.  (I omitted the BEOS:TYPE attribute from the attributes,
+though, that's the linker's job.)  There must be better ways to do it,
+I'm just not very well informed on stuff like that.
+	<P>
+The easy way to do almost the same thing without any C++ file is
+a BEOS:PPATH attribute on the Python program itself, pointing
+to the python binary.  (That's what BAppFileInfo::SetAppHint() does.)
+Then the program will be executed (interpreted) by python when
+you select it from a Tracker window.  But the file's icon doesn't
+show up in the dock that way.  I don't think it's necessarily a
+good idea to do this routinely with every Python program -- in
+many cases the 'edit this file' default will be more appropriate.
+</BODY>
+</HTML>

@@ -1,0 +1,59 @@
+#!/boot/common/bin/python
+#
+#  Example translated from C++ sample code.
+#
+import struct
+
+import BApplication
+from BButton import BButton
+from BMessage import BMessage
+from BWindow import BWindow
+
+from AppKit import B_QUIT_REQUESTED
+from InterfaceKit import B_TITLED_WINDOW,B_WILL_DRAW
+
+class BTSButtonWindow(BWindow):
+	kWindowFrame = (100, 100, 300, 300)
+	kButtonFrame = (80, 90, 120, 110)
+	kWindowName = "ButtonWindow"
+	kButtonName = "Press"
+	BUTTON_MSG = struct.unpack('!l', 'PRES')[0]
+ 
+	def __init__(self):
+		BWindow.__init__(self, self.kWindowFrame, self.kWindowName,
+			B_TITLED_WINDOW, B_WILL_DRAW)
+		self.fButton = BButton(self.kButtonFrame, self.kButtonName,
+			self.kButtonName, BMessage(self.BUTTON_MSG))
+        	self.AddChild(self.fButton)
+		self.numpresses = 0
+
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return BWindow.QuitRequested(self)
+
+	def MessageReceived(self, msg):
+		#  This is interesting because of the drivel you get.
+		#  The area around the button is the Window's own View,
+		#  and messages to that view come here.  If there were
+		#  a BBox or something covering the whole window, and then
+		#  this button attached to that, the box would eat all those
+		#  mouse messages.  It would also have the conventional
+		#  grey color.
+		#
+		#  print 'what:', hollerith.int2str(msg.what, 4)
+		if msg.what == self.BUTTON_MSG:
+			print 'got button'
+			self.numpresses = self.numpresses + 1
+			self.SetTitle('Presses: %d' % self.numpresses)
+		else:
+			BWindow.MessageReceived(self, msg)
+
+class BTSButtonApp(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, 'application/x-vnd.Be-BasicButton')
+	def ReadyToRun(self):
+		self.fWindow = BTSButtonWindow()
+		self.fWindow.Show()
+
+app = BTSButtonApp()
+app.Run()

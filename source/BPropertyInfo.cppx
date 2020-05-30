@@ -1,0 +1,369 @@
+//  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+//  All rights reserved.  Permission to copy, modify and distribute this
+//  material is hereby granted, without fee, provided that the above
+//  copyright notice appear in all copies.
+//
+//  Written to a significant extent by hand!  because it's easier than
+//  generating the code for a complex data structure like this.
+//
+#include <stdio.h>
+#include <string.h>
+
+#include <app/PropertyInfo.h>
+#include <support/DataIO.h>
+
+
+#include <Python.h>
+#include "PyBase.h"
+#include "PyMisc.h"
+
+
+
+#include "BpyBase.h"
+
+
+static PyObject *PyBPropertyInfoError;
+
+
+
+
+
+
+
+
+class BpyPropertyInfo: public BPropertyInfo, public BpyBase {
+	
+    public:
+		BpyPropertyInfo(): BPropertyInfo() {}
+	
+
+};
+
+
+
+
+typedef BaseObject PyBPropertyInfoObject;
+
+static void
+PyBPropertyInfo_dealloc(PyBPropertyInfoObject *self)
+{
+	if (INTERNAL_BEPTR(self)) {
+		BpyPropertyInfo *cobj = (BpyPropertyInfo *) self->bevoid;
+		delete cobj;
+	} 
+	self->bevoidness = 0;
+	PyMem_DEL(self);
+}
+
+//  cfunctions will be used to export the to/from functions, to other
+//  Bxxx.so modules.
+
+static struct BaseFunctions cfunctions;
+
+typedef struct StringDx {
+	char *ptr;
+	int len;
+} pstring;
+
+static PyObject *
+StatusError(const char *name, status_t stnum)
+{
+	static const char unknown[] = "(unknown)";
+	char *r = strerror(stnum);
+	if (!r)
+		r = (char *) unknown;
+	PyErr_SetObject(PyBPropertyInfoError, Py_BuildValue("ls", stnum, r));
+	return 0;
+}
+
+static PyObject * PyBPropertyInfo_simpleattr(BaseObject *, char *, PyObject *);
+static BPropertyInfo *
+nativePtr(PyBPropertyInfoObject *self)
+{
+	int i;
+	for (i = 0; i < MAXBASETYPES && self->base[i].name[0]; ++i) {
+		if (self->base[i].simpleattr == PyBPropertyInfo_simpleattr)
+			return (BPropertyInfo *) ((void *) (((long) self->bevoid) + self->base[i].offset));
+	}
+	fprintf(stderr, "BPropertyInfo not found.\n");
+	return 0;
+}
+
+
+
+static PyObject *
+propinf_c2p(const property_info *pilist, int npi)
+{
+	PyObject *lst = PyTuple_New(npi);
+	int i;
+	for (i = 0; i < npi; ++i) {
+		int j, nmj;
+		const property_info *pi = &pilist[i];
+		PyObject *p = PyTuple_New(5);
+
+		// name
+		PyObject *m;
+		m = PyString_FromString(pi->name);
+		PyTuple_SetItem(p, 0, m);
+
+		// commands
+		for (nmj = 0; nmj < 10 && pi->commands[nmj]; ++nmj)
+			;
+		m = PyTuple_New(nmj);
+		for (j = 0; j < nmj; ++j)
+			PyTuple_SetItem(m, j, PyInt_FromLong(pi->commands[j]));
+		PyTuple_SetItem(p, 1, m);
+
+		// specifiers
+		for (nmj = 0; pi->specifiers[nmj]; ++nmj)
+			;
+		m = PyTuple_New(nmj);
+		for (j = 0; j < nmj; ++j)
+			PyTuple_SetItem(m, j, PyInt_FromLong(pi->specifiers[j]));
+		PyTuple_SetItem(p, 2, m);
+
+		// usage
+		if (pi->usage)
+			m = PyString_FromString(pi->usage);
+		else {
+			m = Py_None;
+			Py_INCREF(m);
+		}
+		PyTuple_SetItem(p, 3, m);
+
+		// extra_data
+		m = PyInt_FromLong(pi->extra_data);
+		PyTuple_SetItem(p, 4, m);
+		PyTuple_SetItem(lst, i, p);
+
+
+	}
+	return lst;
+}
+
+static PyObject *
+PyBPropertyInfo_Properties(PyBPropertyInfoObject *self, PyObject *args)
+{
+	const property_info *res;
+	BPropertyInfo *cobj = nativePtr(self);
+	if (PyTuple_Size(args)) {
+		PyErr_SetString(PyExc_TypeError, "tuple Properties()");
+		return 0;
+	}
+	res = cobj->Properties();
+	return propinf_c2p(res, cobj->CountProperties());
+}
+
+
+static struct PyMethodDef PyBPropertyInfo_methods[] = {
+	{"Properties", (PyCFunction) PyBPropertyInfo_Properties, 1},
+	{NULL,		NULL}		/* sentinel */
+};
+
+static PyObject *
+PyBPropertyInfo_simpleattr(BaseObject *obj, char *name, PyObject *qlist)
+{
+	PyBPropertyInfoObject *self = (PyBPropertyInfoObject *) obj;
+	BPropertyInfo *cobj;
+	if (INTERNAL_BEPTR(self)) {
+		BpyPropertyInfo *dobj = (BpyPropertyInfo *) self->bevoid;
+		cobj = (BPropertyInfo *) dobj;
+	} else if (EXTERNAL_BEPTR(self))
+		cobj = (BPropertyInfo *) self->bevoid;
+	else {
+		PyErr_SetString(PyExc_SystemError, "Invalid object");
+		return 0;
+	}
+	PyObject *ret;
+	static char *attrs[] = {
+		
+		0
+	};
+
+	if (qlist) {
+		int i;
+		for (i = 0; attrs[i]; ++i)
+			PyList_Append(qlist, PyString_FromString(attrs[i]));
+		return qlist;
+	} else {
+
+		return Py_FindMethod(PyBPropertyInfo_methods, (PyObject *) obj, name);
+	}
+}
+
+static PyTypeObject PyBPropertyInfoType = {
+	PyObject_HEAD_INIT(&PyType_Type)
+	0,			/*ob_size*/
+	"BPropertyInfo",		/*tp_name*/
+	sizeof(PyBPropertyInfoObject),	/*tp_size*/
+	0,			/*tp_itemsize*/
+	/*  */
+	(destructor) PyBPropertyInfo_dealloc, /*tp_dealloc*/
+	0,			/*tp_print*/
+	(getattrfunc) Base_getattr, /*tp_getattr*/
+	0,			/*tp_setattr*/
+	0,			/*tp_compare*/
+	0,			/*tp_repr*/
+};
+
+static struct baseItem basemodules[MAXBASETYPES];
+
+static void
+initBases()
+{
+	static int initstate = 0;
+	// SETBASEOBJECTMAGIC(&PyBPropertyInfoType);
+	//  First of our kind?  
+	if (initstate)
+		return;
+	memset(basemodules, 0, sizeof(basemodules));
+	//  Need a non-null pointer value here, but cannot be sure
+	//  that the first caller will have access to a properly
+	//  constructed BpyPropertyInfo.  Appears that any non-null value
+	//  is as good as another, though.  If this is not true
+	//  after all, we will have to put back in some code that
+	//  comes back and cleans this up the first time a real
+	//  BpyPropertyInfo is available.
+	BpyPropertyInfo *derived = (BpyPropertyInfo *) 0xdeadbeef;
+	Base_init(basemodules, "BPropertyInfo",
+		(long) ((BPropertyInfo *) derived) - (long) derived,
+				PyBPropertyInfo_simpleattr);
+	Base_initFromName(basemodules, "BFlattenable", (long) ((BFlattenable *) derived) - (long) derived);
+	
+	initstate = 1;
+}
+
+static PyBPropertyInfoObject *
+PyBPropertyInfo_new()
+{
+	PyBPropertyInfoObject *self;
+	self = PyObject_NEW(PyBPropertyInfoObject, &PyBPropertyInfoType);
+	if (self) {
+		self->bevoid = 0;
+		self->bevoidness = 0;
+		self->base = basemodules;
+		
+	}
+	return self;
+}
+
+
+
+
+static BPropertyInfo *
+PyBPropertyInfo_AsBPropertyInfo(PyObject *arg)
+{
+
+
+	PyObject *stamped;
+	if (arg->ob_type->tp_getattr)
+		stamped = arg->ob_type->tp_getattr(arg, BEBOSTAMP);
+	else
+		stamped = 0;
+	if (stamped)
+		Py_DECREF(stamped);
+	if (!stamped || stamped != Py_None) {
+		PyErr_SetString(PyExc_TypeError, "Not BeOS API object");
+		return 0;
+	}
+	// if (!HASBASEOBJECTMAGIC(arg))
+	// 	return 0;
+	PyBPropertyInfoObject *ob = (PyBPropertyInfoObject *) arg;
+	if (ob->ob_type != &PyBPropertyInfoType) {
+		int i;
+		for (i = 0; i < MAXBASETYPES && ob->base[i].name[0]; ++i) {
+			// if (!strcmp(PyBPropertyInfoType.tp_name, ob->base[i].name))
+			if (ob->base[i].simpleattr == &PyBPropertyInfo_simpleattr)
+				break;
+		}
+		if (i == MAXBASETYPES || !ob->base[i].name[0])
+			return 0;
+	}
+	BPropertyInfo *cobj;
+	if (INTERNAL_BEPTR(ob)) {
+		BpyPropertyInfo *dobj = (BpyPropertyInfo *) ob->bevoid;
+		cobj = (BPropertyInfo *) dobj;
+	} else if (EXTERNAL_BEPTR(ob))
+		cobj = (BPropertyInfo *) ob->bevoid;
+	else {
+		PyErr_SetString(PyExc_SystemError, "Invalid object");
+		return 0;
+	}
+	return cobj;
+}
+
+
+static PyObject *
+PyBPropertyInfo_FromBPropertyInfo(BPropertyInfo *cob)
+{
+	if (!cob) {
+		PyErr_SetString(PyExc_ValueError, "null pointer");
+		return 0;
+	}
+
+	BpyBase *dobj;
+	dobj = (BpyBase *) cob;
+	if (dobj && dobj->frmpy()) {
+		PyObject *self = dobj->self();
+		Py_INCREF(self);
+		return self;
+	} else {
+		PyBPropertyInfoObject *self = PyBPropertyInfo_new();
+		if (self) {
+			SETEXT_BEPTR(self, cob);
+			initBases();
+		}
+		return (PyObject *) self;
+	}
+}
+
+static PyObject *module_dict;
+static PyObject *
+PyBPropertyInfo_BPropertyInfo(PyObject *module, PyObject *args)
+{
+/* {'param': [()], 'byhand': [None], 'return': [('BPropertyInfo*%0',)], 'code': [None], 'input': [()], 'status': [None]} */
+	BPropertyInfo* A0;
+	if (PyTuple_Size(args)) {
+		PyErr_SetString(PyExc_TypeError, "BPropertyInfo()");
+		return 0;
+	}
+	BpyPropertyInfo *a0 = new BpyPropertyInfo();
+	if (!a0)
+		return 0;
+	initBases();
+	PyBPropertyInfoObject *self = PyBPropertyInfo_new();
+	if (!self)
+		return 0;
+	SETINT_BEPTR(self, a0);
+	return (PyObject *) self;
+}
+
+
+
+static struct PyMethodDef BPropertyInfo_global_methods[] = {
+	{"BPropertyInfo",	PyBPropertyInfo_BPropertyInfo, 1},
+	{NULL,		NULL}		/* sentinel */
+};
+
+#define set(s) PyDict_SetItemString(module_dict, #s, PyInt_FromLong(s))
+
+#define preset(s) stdPyBPropertyInfoObject = PyBPropertyInfo_new(); \
+	SETEXT_BEPTR(stdPyBPropertyInfoObject, (void *) s); \
+	initBases(); \
+	PyDict_SetItemString(module_dict, #s, (PyObject *) stdPyBPropertyInfoObject);
+
+extern "C" void
+initBPropertyInfo()
+{
+	PyObject *mod = Py_InitModule("BPropertyInfo", BPropertyInfo_global_methods);
+	module_dict = PyModule_GetDict(mod);
+	PyBPropertyInfoError = PyErr_NewException("BPropertyInfo.error", 0, 0);
+	PyDict_SetItemString(module_dict, "error", PyBPropertyInfoError);
+
+
+	cfunctions.simpleattr = PyBPropertyInfo_simpleattr;
+	cfunctions.AsIt = (void *(*)(PyObject *)) PyBPropertyInfo_AsBPropertyInfo;
+	cfunctions.FromIt = (PyObject *(*)(const void *)) PyBPropertyInfo_FromBPropertyInfo;
+	PyDict_SetItemString(module_dict, "functions", PyCObject_FromVoidPtr(&cfunctions, 0));
+}
+

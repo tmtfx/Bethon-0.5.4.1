@@ -1,0 +1,47 @@
+#!/boot/common/bin/python
+import sys
+
+import BApplication
+from BBox import BBox
+from BMessage import BMessage
+from BTab import BTab
+from BTabView import BTabView
+from BTextView import BTextView
+from BWindow import BWindow
+
+from AppKit import B_QUIT_REQUESTED
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW
+
+class TabDemo(BWindow):
+	def __init__(self):
+		frame = (100.0, 80.0, 340.0, 180.0)
+		BWindow.__init__(self, frame, 'tab demo', B_TITLED_WINDOW, B_WILL_DRAW)
+		self.box = BBox((0.0, 0.0, 240.0, 100.0), 'box')
+		self.tv = BTabView((5.0, 5.0, 235.0, 95.0), 'tabview')
+		hi = self.tv.TabHeight()
+		tfr = (10.0, 10.0, 220.0, 80.0 - hi)
+		trc = (0.0, 0.0, tfr[2] - tfr[0], tfr[3] - tfr[1])
+		self.l1 = BTextView(tfr, 'L1', trc, B_FOLLOW_ALL, B_WILL_DRAW)
+		self.l1.SetText('\n\n\tThe left tab')
+		self.l2 = BTextView(tfr, 'L2', trc, B_FOLLOW_ALL, B_WILL_DRAW)
+		self.l2.SetText('\n\n\tThe right tab')
+		self.tabs = (BTab(), BTab())
+		self.tv.AddTab(self.l1, self.tabs[0])
+		self.tv.AddTab(self.l2, self.tabs[1])
+		self.box.AddChild(self.tv)
+        	self.AddChild(self.box)
+		self.value = 0
+
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class App(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, 'application/x-vnd.StatusBar')
+	def ReadyToRun(self):
+		self.window = TabDemo()
+		self.window.Show()
+
+app = App()
+app.Run()

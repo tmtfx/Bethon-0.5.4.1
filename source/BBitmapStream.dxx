@@ -1,0 +1,55 @@
+include
+	<translation/BitmapStream.h>
+	<translation/TranslationDefs.h>
+	<support/DataIO.h>
+	<translation/TranslatorFormats.h>
+	<translation/TranslationUtils.h>
+	<storage/Entry.h>
+
+# TBD, need TranslatorRoster type for optional parameter here.
+# Oh for cryin' out loud, I didn't notice that these functions
+# are actually statics in some bogus class.  Well, that's not
+# worth the trouble right now.
+# function GetBitmap
+#	input const char*@1
+#	return BBitmap*%0
+#	input entry_ref*@1
+#	input uint32@1,int32@2
+#	input uint32@1,const char*@2
+#	input BPositionIO*@1
+# function GetBitmapFile
+#	input const char*@1
+#	return BBitmap*%0
+
+class BitmapStream ref
+	base PositionIO
+	constructor
+		param BBitmap*@1=0
+	function BBitmapStream
+		input BBitmap*@1=0
+		return BBitmapStream*%0
+	# should these be virtual?  Does C++ make much sense?
+	function ReadAt
+		input off_t@1,size_t@2
+		param off_t@1,char*%3[@2,size_t@2
+		status ssize_t%0
+		return char*%3[%0
+	function WriteAt
+		input off_t@1,pstring@2
+		param off_t@1,pstring@2.ptr,pstring@2.len
+		status ssize_t%0
+		return ssize_t%0
+	function Position
+		return off_t%0
+	function SetSize
+		input off_t@1
+		status status_t%0
+	function Size
+		return off_t%0
+	function Seek
+		input off_t@1,uint32@2
+		return off_t%0
+	function DetachBitmap
+		param &BBitmap*%1
+		status status_t%0
+		return BBitmap*%1

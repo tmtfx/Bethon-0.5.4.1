@@ -1,0 +1,70 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/FilePanel.h>
+	<sys/stat.h>
+	<storage/Entry.h>
+	<storage/Directory.h>
+	<storage/Node.h>
+	<interface/Window.h>
+	<app/Messenger.h>
+	<app/Message.h>
+
+#  Ought to have virtual functions, but there seem to be a lot of missing
+#  pieces that I've been using for thread support.
+
+class FilePanel
+	constructor
+		param file_panel_mode@1,BMessenger*@2,entry_ref*@3,uint32@4,bool@5,BMessage*@6,BRefFilter*@7,bool@8,bool@9
+	function BFilePanel
+		input file_panel_mode@1=B_OPEN_PANEL,BMessenger*@2=0,entry_ref*@3=0,uint32@4=0,bool@5=1,BMessage*@6=0,BRefFilter*@7=0,bool@8=0,bool@9=1
+		return BFilePanel*%0
+	function Show
+	function Hide
+	function IsShowing
+		return bool%0
+	# virtual WasHidden
+	# virtual SelectionChanged
+	function SendMessage
+		input BMessenger*@1,BMessage*@2
+	function Window
+		return BWindow*%0
+	function Messenger
+		return BMessenger%0
+	function RefFilter
+		return BRefFilter*%0
+	function GetPanelDirectory
+		input
+		param &entry_ref%1
+		return entry_ref%1
+	function PanelMode
+		return file_panel_mode%0
+	function SetTarget
+		input BMessenger@1
+	function SetMessage
+		input BMessage*@1
+	function SetRefFilter
+		input BRefFilter*@1
+	function SetSaveText
+		input char*@1
+	function SetButtonLabel
+		input file_panel_button@1,char*@2
+	function SetPanelDirectory
+		input BEntry*@1
+		input BDirectory*@1
+		input entry_ref*@1
+		input char*@1
+	function SetHideWhenDone
+		input bool@1
+	function HidesWhenDone
+		return bool%0
+	function Refresh
+	function Rewind
+	function GetNextSelectedRef
+		input
+		param &entry_ref%1
+		status status_t%0
+		return entry_ref%1

@@ -1,0 +1,68 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/Entry.h>
+	<storage/StorageDefs.h>
+	<storage/Directory.h>
+	<storage/Path.h>
+
+class Entry var
+	base Statable
+	constructor
+		param
+		param const BDirectory*@1,const char*@2,bool@3
+		param const entry_ref*@1,bool@2
+		param const char*@1,bool@2
+	function BEntry
+		input
+		return BEntry*%0
+		input BDirectory*@1,char*@2,bool@3=0
+		input entry_ref*@1,bool@2=0
+		input char*@1,bool@2=0
+	function InitCheck
+		# status status_t%0
+		return status_t%0
+	function Exists
+		return bool%0
+	function SetTo
+		input BDirectory*@1,char*@2,bool@3
+		status status_t%0
+		input entry_ref*@1,bool@2
+		input char*@1,bool@2
+	function Unset
+	function GetRef
+		input
+		param &entry_ref%1
+		status status_t%0
+		return entry_ref%1
+	function GetPath
+		input
+		param &BPath%1
+		status status_t%0
+		return BPath%1
+	function GetParentEntry GetParent
+		input
+		param &BEntry%1
+		status status_t%0
+		return BEntry%1
+	function GetParentDirectory GetParent
+		input
+		param &BDirectory%1
+		status status_t%0
+		return BDirectory%1
+	function GetName
+		input
+		param char%1[B_FILE_NAME_LENGTH
+		status status_t%0
+		return char%1
+	function Rename
+		input char*@1,bool@2=0
+		status status_t%0
+	function MoveTo
+		input BDirectory*@1,char*@2=0
+		status status_t%0
+	function Remove
+		status status_t%0

@@ -1,0 +1,68 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/MenuItem.h>
+
+#  There are some potential virtual functions here, but would need some
+#  path to the Looper subclass with Python thread state.
+#
+class MenuItem ref
+	base Invoker
+	constructor
+		param const char*@1,BMessage*@2,char@3,uint32@4
+		param BMenu*@1,BMessage*@2
+	function BMenuItem
+		input const char*@1,BMessage*@2!incref,char@3=0,uint32@4=0
+		return BMenuItem*%0
+		input BMenu*@1,BMessage*@2=0!incref
+	function SetMarked
+		input bool@1
+	function SetEnabled
+		input bool@1
+	function SetTrigger
+		input char@1
+	function SetShortcut
+		input char@1,uint32@2
+## robbed from BInvoker for testing
+#	function SetTarget
+#		input BMessenger*@1
+#		param *BMessenger*@1
+#		status status_t%0
+#		input BHandler*@1,BLooper*@2=0
+	function IsMarked
+		return bool%0
+	function Trigger
+		return char%0
+	function Shortcut
+		input
+		param &uint32%1
+		return char%0,uint32%1
+	function Submenu
+		return BMenu*%0
+	function Menu
+		return BMenu*%0
+	function Label
+		return const char*%0
+	function Frame
+		return BRect%0
+	# Protected virtuals - should be implemented only for non-text labels
+	# hook GetContentSize
+	# 	param float*@1,float*@2
+	#	input
+	#	return *float*@1,*float*@2
+	# hook TruncateLabel
+	# 	param float@1,char*@2
+	# 	input float@1,char*@2
+	# hook DrawContent
+	# hook Draw
+	# hook HighLight
+	# 	param bool@1
+	# 	input bool@1
+	# These are protected too.
+	# function IsSelected
+	# 	return bool%0
+	# function ContentLocation
+	# 	return BPoint%0

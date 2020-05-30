@@ -1,0 +1,149 @@
+include
+	<storage/Mime.h>
+	<app/Messenger.h>
+	<storage/Entry.h>
+
+class MimeType ref
+	constructor
+		param
+		param const char*@1
+	function BMimeType
+		input
+		return BMimeType*%0
+		input const char*@1
+	function SetTo
+		input const char*@1
+		status status_t%0
+	function Unset
+	function InitCheck
+		return status_t%0
+	function Type
+		return const char*%0
+	function IsValid
+		input
+		return bool%0
+		input const char*@1  # static
+	function IsSupertypeOnly
+		return bool%0
+	function IsInstalled
+		return bool%0
+	function GetSupertype
+		input
+		param &BMimeType%1
+		status status_t%0
+		return BMimeType%1
+	function Contains
+		input BMimeType*@1
+		return bool%0
+	function Install
+		status status_t%0
+	function Delete
+		status status_t%0
+	function GetIcon
+		input BBitmap*@1,icon_size@2
+	function GetPreferredApp
+		input app_verb@1=B_OPEN
+		param char%2[B_MIME_TYPE_LENGTH,app_verb@1
+		status status_t%0
+		return char%2
+	function GetAttrInfo
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+	function GetFileExtensions
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+	function GetShortDescription
+		input
+		param char%1[B_MIME_TYPE_LENGTH
+		status status_t%0
+		return char%1
+	function GetLongDescription
+		input
+		param char%1[B_MIME_TYPE_LENGTH
+		status status_t%0
+		return char%1
+	function GetSupportingApps
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+	function SetIcon
+		input const BBitmap*@1,icon_size@2
+		status status_t%0
+	function SetPreferredApp
+		input const char*@1,app_verb@2=B_OPEN
+		status status_t%0
+	function SetAttrInfo
+		input const BMessage*@1
+		status status_t%0
+	function SetFileExtensions
+		input const BMessage*@1
+		status status_t%0
+	function SetShortDescription
+		input const char*@1
+		status status_t%0
+	function SetLongDescription
+		input const char*@1
+		status status_t%0
+	function GetInstalledSupertypes
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+	function GetInstalledTypes
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+		input const char*@1
+		param &BMessage%2
+		return BMessage%2
+	function GetWildcardApps
+		input
+		param &BMessage%1
+		status status_t%0
+		return BMessage%1
+	function GetAppHint
+		input
+		param &entry_ref%1
+		status status_t%0
+		return entry_ref%1
+	function SetAppHint
+		input entry_ref*@1
+		status status_t%0
+	function GetIconForType
+		input const char*@1,BBitmap*@2,icon_size@3
+		status status_t%0
+	function SetIconForType
+		input const char*@1,BBitmap*@2,icon_size@3
+		status status_t%0
+	# function GetSnifferRule
+	# 	input
+	# 	param &BString%1
+	# 	status status_t%0
+	# 	return BString%1
+	function SetSnifferRule
+		input const char*@1
+		status status_t%0
+	# function CheckSnifferRule
+	# 	input const char*@1
+	# 	param const char*@1,&BString%2
+	# 	status status_t%0
+	# 	return BString%2
+	function GuessMimeType
+		input const entry_ref*@1
+		param const entry_ref*@1,&BMimeType%2
+		status status_t%0
+		return BMimeType%2
+		input const char*@1
+		param const char*@1,&BMimeType%2
+	function StartWatching
+		input BMessenger@1
+		status status_t%0
+	function StopWatching
+		input BMessenger@1
+		status status_t%0

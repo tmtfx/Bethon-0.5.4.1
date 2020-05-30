@@ -1,0 +1,133 @@
+#!/boot/common/bin/python
+#
+#   Create windows at run time from the application thread.
+#   One of the window threads decides to create a new window, but
+#   the window really is better created from the application thread.
+#
+#   It will work just as well either way, the big difference seems
+#   to be what happens when it quits or aborts, just doesn't work
+#   right unless created from the application.  I am not totally
+#   sure this is a general BeOS issue - it seems to me I have heard
+#   it before - or a Python BeOS issue, i.e., my bug, but it's very
+#   repeatable.
+#
+#   So the window posts a message to the application thread, with
+#   the necessary information.
+#
+import os
+import posixpath
+import sys
+import time
+
+import BApplication
+from BStringItem import BStringItem
+from BListView import BListView
+from BScrollView import BScrollView
+from BWindow import BWindow
+from BMessage import BMessage
+from BMessenger import be_app_messenger
+
+from errpt import LastChanceLooper
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NOT_RESIZABLE,B_NOT_ZOOMABLE,B_FOLLOW_LEFT,B_FOLLOW_TOP,B_PLAIN_BORDER,B_FANCY_BORDER,B_NO_BORDER
+from AppKit import B_QUIT_REQUESTED
+
+class ScrollView:
+	HiWhat = 32
+	def __init__(self, dir, rect, name):
+		self.lv = BListView(rect, name, 1, B_FOLLOW_ALL)
+		self.dir = dir
+		f = self.lv.GetFont()
+		h = f.GetHeight()
+		h = h[0] + h[1] + h[2]
+		h = float(int(h + 0.5))
+		ww = 100.0
+		wh = 4.0
+		for i in os.listdir(dir):
+			item = BStringItem(i)
+			self.lv.AddItem(item)
+			iw = f.StringWidth(i)
+			if iw > ww:
+				ww = iw
+			wh = wh + h
+		if wh > rect[3]:
+			wh = rect[3]
+		elif wh < 40.0:
+			wh = 40.0  # Guess at minimum for thumbs
+		ww = ww + 16.0
+		self.lv.ResizeTo(ww, wh)
+		self.top = BScrollView('ScrollView', self.lv, B_FOLLOW_LEFT|B_FOLLOW_TOP, B_WILL_DRAW, 0, 1, B_PLAIN_BORDER)
+		l, t, r, b = self.top.Bounds()
+		msg = BMessage(self.HiWhat)
+		self.lv.SetInvocationMessage(msg)
+		high = (255, 255, 0, 0)
+		low = (60, 0, 60, 0)
+		self.lv.SetHighColor(high)
+		self.lv.SetViewColor(low)
+		self.lv.SetLowColor(low)
+	def checkup(self, msg):
+		c = self.lv.CurrentSelection(0)
+		if c >= 0:
+			item = self.lv.ItemAt(c)
+			dir = item.Text()
+			xview(self.dir + '/' + dir)
+
+class ScrollWindow(BWindow, LastChanceLooper):
+	x0 = 80.0
+	y0 = 60.0
+	def __init__(self, dir):
+		l = ScrollWindow.x0
+		t = ScrollWindow.y0
+		r = l + 50.0
+		b = t + 240.0
+		ScrollWindow.x0 = l + 10.0
+		ScrollWindow.y0 = t + 10.0
+		BWindow.__init__(self, (l, t, r, b), 'Scroll', B_TITLED_WINDOW, B_NOT_ZOOMABLE)
+		# set up a rectangle and instantiate a new view
+		l, t, r, b = self.Bounds()
+		self.view = ScrollView(dir, (l, t, r, b), 'ScrollView')
+		l, t, r, b = self.view.top.Bounds()
+		#  Don't know why, but BScrollView seems to overestimate
+		#  its window size here.
+		self.ResizeTo(r - 2.0, b - 2.0)
+		self.AddChild(self.view.top)
+		#  PgUp/Dn don't work scrollbars until BListView has focus.
+		self.view.lv.MakeFocus(1)
+	def MessageReceived(self, msg):
+		if msg.what == self.view.HiWhat:
+			self.view.checkup(msg)
+		else:
+			BWindow.MessageReceived(self, msg)
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class ScrollApplication(BApplication.BApplication):
+	MAKE_WINDOW = 17
+	def __init__(self):
+		BApplication.BApplication.__init__(self, "application/x-vnd.Be-ScrollWorldSample")
+	def ReadyToRun(self):
+		dview('/boot/home')
+	def MessageReceived(self, msg):
+		if msg.what == self.MAKE_WINDOW:
+			dview(msg.FindString('dir'))
+		else:
+			BApplication.BApplication.MessageReceived(self, msg)
+
+def xview(dir):
+	msg = BMessage(ScrollApplication.MAKE_WINDOW)
+	msg.AddString('dir', dir)
+	#  PostMessage works if you have the Application instance handy,
+	#  or you can use be_app_messenger.
+	#
+	#  myApplication.PostMessage(msg)
+	#
+	be_app_messenger.SendMessage(msg)
+
+def dview(dir):
+	if posixpath.isdir(dir):
+		window = ScrollWindow(dir)
+		window.Show()
+
+myApplication = ScrollApplication()
+myApplication.Run()

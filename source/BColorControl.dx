@@ -1,0 +1,28 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/ColorControl.h>
+
+class ColorControl handler
+	base Control
+	constructor
+		param BPoint@1,color_control_layout@2,float@3,const char*@4,BMessage*@5,bool@6
+	function BColorControl
+		input BPoint@1,color_control_layout@2,float@3,const char*@4,BMessage*@5=NULL!dup,bool@6=false
+		return BColorControl*%0
+	function SetLayout
+		input color_control_layout@1
+	function Layout
+		input
+		return color_control_layout%0
+	function CellSize
+		input
+		return float%0
+	function SetCellSize
+		input float@1
+	function ValueAsColor
+		input
+		return rgb_color%0

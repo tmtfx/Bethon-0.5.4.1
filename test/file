@@ -1,0 +1,32 @@
+#!/boot/common/bin/python
+import sys
+import time
+
+from BFile import BFile
+from StorageKit import B_READ_ONLY
+from SupportKit import B_ENTRY_NOT_FOUND
+
+class File(BFile):
+	def __init__(self, *args):
+		apply(BFile.__init__, (self,) + args)
+
+def main(argv):
+	for arg in argv[1:]:
+		f = BFile(arg, B_READ_ONLY)
+		print arg,
+		sys.stdout.flush()
+		print f.GetSize(),
+		sys.stdout.flush()
+		print 'bytes',
+		sys.stdout.flush()
+		try:
+			print repr(f.ReadAttr('BEOS:TYPE', 0, 0, 100))
+		except Exception, e:
+			if (hasattr(e, 'args') and len(e.args) > 0
+			    and e.args[0] == B_ENTRY_NOT_FOUND):
+				print '(no type attribute)'
+			else:
+				raise
+		sys.stdout.flush()
+
+main(sys.argv)

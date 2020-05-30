@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+<TITLE>Python classes for BeOS C++ API</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+	<H2>
+Python classes for BeOS C++ API, version 0.5.0.
+	</H2><P>
+If you're a Python programmer and <I> not </I> a C++ programmer, and
+only want to use the modules, the worst problem is just documentation,
+or lack thereof.  We have none, we rely entirely on the BeBook
+documentation of the C++ API.  And there are some transforms between
+that and this Python API that should fairly obvious to someone who
+understands both, but maybe not if you only know Python.
+	<P>
+There is hope, though, since at least there are some example programs.
+If anyone wants to contribute more example programs, incidentally,
+that would be great.  There is also usually included with this
+distribution a real application, maybe not the slickest thing in
+the world but I use it.
+	<P>
+If you have used an older release, 0.4.2 or older, this one marks
+a substantial change in that the Python 2.2 class/type integration
+allows us to inherit directly from a Be API type, instead of using
+a special bind() method to link the class instance up.  The old way
+still works, and the new actually has some drawbacks - it can be
+harder to find the right base class for a MessageReceived or whatever.
+All the examples have been converted to the new style.
+	<P>
+Credits - I got some of the ideas in this system from a paper by
+Jim Ahlstrom, though they've probably been perverted beyond
+recognition and the resulting mess shouldn't reflect on him
+at this point.
+	<P>
+	<H4>
+Step one:  Python
+	</H4><P>
+Get Python.  I think at some point this could be a binary distribution,
+including Python, but at present you have to get Python separately.
+As of Bethon-0.5.0, Python 2.2 is required.  My Python 2.2 distribution
+for BeOS includes binaries from version Bethon 0.5.0.
+	<P>
+I assume installation makes and uses /boot/home/config/lib/python2.2 and
+a subdirectory plat-beos5.  I'm assuming BeOS 5.0.  That's what I have.
+If anyone needs to work with 4.5, I may be able to help - should be mostly
+just some changes in the API.  ``Improved'' distributions of 5.0 and
+bootleg post-5.0 unreleased distributions seem to be a common source of
+problems, and I can't help much with that.
+	<P>
+I use a file in the top directory "pythonversion" with one
+line PYTHONVERSION=2.2, and the makefiles can find that.  You must
+however keep build versions consistent, don't try to run old modules
+with new interpeter or vice versa.
+	<P>
+PPC and Intel are both supported, of course.
+	<P>
+	<H4>
+Step two:  Build these modules.
+	</H4><P>
+Cd to <CODE>base</CODE>, run <I>make</I>.
+	<P>
+Cd to <CODE>build</CODE>, run <I>make</I>.  Then <I>make install</I>, to
+put the modules in the lib directory where python will look.
+	<P>
+Cd to <CODE>symbols</CODE>, run <I>make</I>.  Then <I>make install</I>, to
+install the symbol modules for symbols like B_QUIT_REQUESTED.
+	<P>
+	<H4>
+Step three:  Figure out what went wrong.
+	</H4><P>
+If it doesn't work, I would like to hear about.  There will be some
+errors in the compile, for sure - a few things I do the compiler doesn't
+like, plenty of functions that can't be compiled because we don't have
+type support for them yet.
+	<P>
+	<H4>
+The system.
+	</H4></P>
+Each module represents a BeOS API class.  The source is a .dx file,
+using my own ad hoc notation.  This is compiled with a Python program,
+"sg", to m4, a macro language that has been around for many years and
+happens to be supported on BeOS.  m4 converts that to a .cpp C++ file,
+to be compiled and linked as a shared library.
+	<P>
+There are 51 modules as I write this.  Should be easy to write more -
+should be easier than it is!  See Dx.html for more on this.  Send
+along anything you can bear to see included here - we already have
+a few contributed modules.  It doesn't even have to work right.
+Sometimes I can fix them.  Sometimes there's a problem that I have
+to change the template compiler to fix, but if you wait for me to
+run into the problem on my own, it could be long wait!  As I write
+this I'm sitting on some other contributed modules that need more
+thought than I have time for right now, that happens too.
+	<P>
+The module for a derived class can fall back on its base classes -
+for example, the many BView descendants rely on the BView module for
+methods like Bounds().  They do this at run time.  Virtual hook
+functions are also inherited, but not at run time - they're just
+pulled out of their respective .dx files at compile time.
+	<P>
+Donn Cave, donn@drizzle.com
+</BODY>

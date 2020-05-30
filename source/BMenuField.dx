@@ -1,0 +1,37 @@
+#  Copyright 2004 by Lars Hansson, Makati City, Metro Manila, Philippines.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/MenuField.h>
+
+class MenuField handler
+	base View
+	constructor
+		param BRect@1,const char*@2,const char*@3,BMenu*@4,uint32@5,uint32@6
+	function BMenuField
+		input BRect@1,const char*@2,const char*@3,BMenu*@4,uint32@5=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@6=B_WILL_DRAW|B_NAVIGABLE_JUMP
+		return BMenuField*%0
+	function SetLabel
+		input const char*@1
+	function Label
+		return const char*%0
+	function Menu
+		return BMenu*%0
+	function MenuBar
+		return BMenuBar*%0
+	function MenuItem
+		return BMenuItem*%0
+	function SetDivider
+		input float@1
+	function Divider
+		return float%0
+	function SetAlignment
+		input alignment@1
+	function Alignment
+		return alignment%1
+	function SetEnabled
+		input bool@1
+	function IsEnabled
+		return bool@1

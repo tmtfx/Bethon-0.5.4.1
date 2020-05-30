@@ -1,0 +1,34 @@
+#!/boot/common/bin/python
+import sys
+import BApplication
+import BFilePanel
+import BMessage
+
+from AppKit import B_QUIT_REQUESTED,B_REFS_RECEIVED
+
+class ta(BApplication.BApplication):
+	def __init__(self, sig):
+		BApplication.BApplication.__init__(self, sig)
+		self.i = 0
+	def __str__(self):
+		return 'TestApplication'
+	def RefsReceived(self, msg):
+		msg.PrintToStream()
+		if msg.what == B_REFS_RECEIVED:
+			i = 0
+			while 1:
+				try:
+					e = msg.FindRef("refs", i)
+				except BMessage.error, val:
+					e = None
+				if e is None:
+					break
+				i = i + 1
+		self.PostMessage(B_QUIT_REQUESTED)
+
+app = ta('application/python-test')
+
+fp = BFilePanel.BFilePanel()
+fp.SetPanelDirectory("/boot/home")
+fp.Show()
+app.Run()

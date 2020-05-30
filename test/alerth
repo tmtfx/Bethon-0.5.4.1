@@ -1,0 +1,17 @@
+#!/boot/common/bin/python
+import BApplication
+from BAlert import BAlert
+
+class Waiter(BApplication.BApplication):
+	def __init__(self, sign = 'application/x-stuff'):
+		BApplication.BApplication.__init__(self, sign)
+	def ReadyToRun(self):
+		self.alert()
+	def alert(self):
+		z = BAlert('Spud', 'Hello?\nAnyone home?', 'Cancel',
+			'Continue', 'Or else', None, 2)
+		print z.Go()
+		self.Quit()
+
+w = Waiter()
+w.Run()

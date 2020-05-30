@@ -1,0 +1,414 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+#
+#  FindX, AddX, ReplaceX ... big nuisance, and somewhat redundant in Python.
+#  Find() etc. would be nice, but the integer % float types are a problem,
+#  since the API needs to know specifically - to get around this, I'd
+#  have to look up first with TYPE_ANY;  for Add(), we could optionally
+#  specify or default to 32.
+#  Hm, what if I defined only AddData() etc., and then support types
+#  internally - AddData('blah', 3) --> type int32
+#  default types int32, double, else specify in parameter.
+#  Or, Add('blah', 3) vs. AddData('blah', B_INT8_TYPE, 3 [, 1, 20])
+#  Are BPoint % BRect types, or was I going to hold out for tuples?
+#
+define
+	B_FIELD_NAME_LENGTH
+	B_PROPERTY_NAME_LENGTH
+	B_NO_SPECIFIER
+	B_DIRECT_SPECIFIER
+	B_INDEX_SPECIFIER
+	B_REVERSE_INDEX_SPECIFIER
+	B_RANGE_SPECIFIER
+	B_REVERSE_RANGE_SPECIFIER
+	B_NAME_SPECIFIER
+	B_SPECIFIERS_END
+
+include
+	<app/Message.h>
+	<app/Messenger.h>
+	<interface/Point.h>
+	<interface/Rect.h>
+	<storage/Entry.h>
+	<support/DataIO.h>
+
+class Message ref
+	# export FromLong
+	# 	param int32@1
+	# 	return BMessage*%0
+	constructor
+		param
+		param int32@1
+		param BMessage&@1
+#		param BMessage*@1
+	function BMessage
+		input
+		return BMessage*%0
+		input int32@1
+		input BMessage*@1
+		param *BMessage*@1
+#		input BMessage*@1
+	attr what
+		return int32
+	function AddSpecifier
+		input char*@1
+		status status_t%0
+		input char*@1,int32@2
+		input char*@1,int32@2,int32@3
+		input char*@1,char*@2
+		input BMessage*@1
+	function GetCurrentSpecifier
+		input
+		param &int32%1,&BMessage%2,&int32%3,&const char*%4
+		status status_t%0
+		return int32%1,BMessage%2,int32%3,const char*%4
+	function HasSpecifiers
+		return int32%0
+	function PopSpecifier
+		status status_t%0
+	function AddRect
+		input char*@1,BRect@2
+		status status_t%0
+	function AddPoint
+		input char*@1,BPoint@2
+		status status_t%0
+	function AddString
+		input char*@1,char*@2
+		status status_t%0
+	function AddInt8
+		input char*@1,int8@2
+		status status_t%0
+	function AddInt16
+		input char*@1,int16@2
+		status status_t%0
+	function AddInt32
+		input char*@1,int32@2
+		status status_t%0
+	function AddInt64
+		input char*@1,int64@2
+		status status_t%0
+	function AddBool
+		input char*@1,bool@2
+		status status_t%0
+	function AddFloat
+		input char*@1,float@2
+		status status_t%0
+	function AddDouble
+		input char*@1,double@2
+		status status_t%0
+#	function AddPointer
+#		input char*@1,void*@2
+#		status status_t%0
+	function AddMessenger
+		input char*@1,BMessenger*@2
+		param char*@1,*BMessenger*@2
+		status status_t%0
+	function AddRef
+		input char*@1,entry_ref*@2
+		status status_t%0
+	function AddMessage
+		input char*@1,BMessage*@2
+		status status_t%0
+#	function AddFlat
+#		input char*@1,BFlattenable*@2,int32@3=1
+#		status status_t%0
+	function AddData
+		input char*@1,type_code@2,void*@3,ssize_t@4,bool@5=TRUE,int32@6=1
+		status status_t%0
+	function FindRect
+		input char*@1
+		param char*@1,&BRect%3
+		status status_t%0
+		return BRect%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&BRect%3
+	function FindPoint
+		input char*@1
+		param char*@1,&BPoint%3
+		status status_t%0
+		return BPoint%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&BPoint%3
+	function FindString
+		input char*@1
+		param char*@1,&const char*%3
+		status status_t%0
+		return const char*%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&const char*%3
+	function FindInt8
+		input char*@1
+		param char*@1,&int8%3
+		status status_t%0
+		return int8%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&int8%3
+	function FindInt16
+		input char*@1
+		param char*@1,&int16%3
+		status status_t%0
+		return int16%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&int16%3
+	function FindInt32
+		input char*@1
+		param char*@1,&int32%3
+		status status_t%0
+		return int32%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&int32%3
+	function FindInt64
+		input char*@1
+		param char*@1,&int64%3
+		status status_t%0
+		return int64%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&int64%3
+	function FindBool
+		input char*@1
+		param char*@1,&bool%3
+		status status_t%0
+		return bool%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&bool%3
+	function FindFloat
+		input char*@1
+		param char*@1,&float%3
+		status status_t%0
+		return float%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&float%3
+	function FindDouble
+		input char*@1
+		param char*@1,&double%3
+		status status_t%0
+		return double%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&double%3
+#	function FindPointer
+#		input char*@1
+#		param char*@1,void*%3
+#		status status_t%0
+#		return void*%3
+#		input char*@1,int32@2
+#		param char*@1,int32@2,void*%3
+	function FindMessenger
+		input char*@1
+		param char*@1,&BMessenger%3
+		status status_t%0
+		return BMessenger%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&BMessenger%3
+	function FindRef
+		input char*@1
+		param char*@1,&entry_ref%3
+		status status_t%0
+		return entry_ref%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&entry_ref%3
+	function FindMessage
+		input char*@1
+		param char*@1,&BMessage%3
+		status status_t%0
+		return BMessage%3
+		input char*@1,int32@2
+		param char*@1,int32@2,&BMessage%3
+	function FindFlat
+		input char*@1,BFlattenable*@2
+		status status_t%0
+		input char*@1,int32@2,BFlattenable*@3
+
+#	function FindData
+#	Maybe add this, but need to sort out void*/char* problems.
+#		input char*@1,type_code@2
+#		param char*@1,type_code@2,&char*%4,&ssize_t%5
+#		status status_t%0
+#		return char*%4[%5
+#		input char*@1,type_code@2,int32@3
+#		param char*@1,type_code@2,int32@3,&char*%4,&ssize_t%5
+	function ReplaceRect
+		input char*@1,BRect@2
+		status status_t%0
+		input char*@1,int32@2,BRect@3
+	function ReplacePoint
+		input char*@1,BPoint@2
+		status status_t%0
+		input char*@1,int32@2,BPoint@3
+	function ReplaceString
+		input char*@1,char*@2
+		status status_t%0
+		input char*@1,int32@2,char*@3
+	function ReplaceInt8
+		input char*@1,int8@2
+		status status_t%0
+		input char*@1,int32@2,int8@3
+	function ReplaceInt16
+		input char*@1,int16@2
+		status status_t%0
+		input char*@1,int32@2,int16@3
+	function ReplaceInt32
+		input char*@1,int32@2
+		status status_t%0
+		input char*@1,int32@2,int32@3
+	function ReplaceInt64
+		input char*@1,int64@2
+		status status_t%0
+		input char*@1,int32@2,int64@3
+	function ReplaceBool
+		input char*@1,bool@2
+		status status_t%0
+		input char*@1,int32@2,bool@3
+	function ReplaceFloat
+		input char*@1,float@2
+		status status_t%0
+		input char*@1,int32@2,float@3
+	function ReplaceDouble
+		input char*@1,double@2
+		status status_t%0
+		input char*@1,int32@2,double@3
+#	function ReplacePointer
+#		input char*@1,void*@2
+#		status status_t%0
+#		input char*@1,int32@2,void*@3
+	function ReplaceMessenger
+		input char*@1,BMessenger*@2
+		param char*@1,*BMessenger*@2
+		status status_t%0
+		input char*@1,int32@2,BMessenger*@3
+		param char*@1,int32@2,*BMessenger*@3
+	function ReplaceRef
+		input char*@1,entry_ref*@2
+		status status_t%0
+		input char*@1,int32@2,entry_ref*@3
+	function ReplaceMessage
+		input char*@1,BMessage*@2
+		status status_t%0
+		input char*@1,int32@2,BMessage*@3
+#	function ReplaceFlat
+#		input char*@1,BFlattenable*@2
+#		status status_t%0
+#		input char*@1,int32@2,BFlattenable*@3
+	function ReplaceData
+		input char*@1,type_code@2,void*@3,ssize_t@4
+		status status_t%0
+		input char*@1,type_code@2,int32@3,void*@4,ssize_t@4
+	function GetInfo
+		input type_code@1,int32@2
+		param type_code@1,int32@2,&char*%3,&type_code%4,&int32%5
+#		param type_code@1,int32@2,const &char*%3,&type_code%4,&int32%5
+		status status_t%0
+		return char*%3,type_code%4,int32%5
+		input char*@1
+		param char*@1,&type_code%4,&int32%5
+		return type_code%4,int32%5
+	function RemoveData
+		input char*@1,int32@2=0
+		status status_t%0
+	function CountNames
+		input type_code@1
+		return int32%0
+	function MakeEmpty
+		status status_t%0
+	function IsEmpty
+		return int32%0
+	function WasDelivered
+		return int32%0
+	function IsSourceWaiting
+		return int32%0
+	function IsSourceRemote
+		return int32%0
+	function ReturnAddress
+		return BMessenger%0
+	function IsReply
+		return int32%0
+	function Previous
+		return const BMessage*%0
+	function WasDropped
+		return int32%0
+	function DropPoint
+		input
+		return BPoint%0
+		input BPoint*@1
+	function SendReply
+		input BMessage*@1
+		status status_t%0
+#		input BMessage*@1,bigtime_t@2=B_INFINITE_TIMEOUT
+#		param BMessage*@1,0,bigtime_t@2
+#		input BMessage*@1,BHandler*@2,bigtime_t@3=B_INFINITE_TIMEOUT
+#		param BMessage*@1,BHandler*@2,bigtime_t@3
+		input uint32@1
+	function SendReplyWait SendReply
+		input BMessage*@1,bigtime_t@2=B_INFINITE_TIMEOUT,bigtime_t@3=B_INFINITE_TIMEOUT
+		param BMessage*@1,&BMessage%4,bigtime_t@2,bigtime_t@3
+		status status_t%0
+		return BMessage%4
+		input uint32@1
+		param uint32@1,&BMessage%4
+	function HasRect
+		input char*@1,int32@2=0
+		return int32%0
+	function HasPoint
+		input char*@1,int32@2=0
+		return int32%0
+	function HasString
+		input char*@1,int32@2=0
+		return int32%0
+	function HasInt8
+		input char*@1,int32@2=0
+		return int32%0
+	function HasInt16
+		input char*@1,int32@2=0
+		return int32%0
+	function HasInt32
+		input char*@1,int32@2=0
+		return int32%0
+	function HasInt64
+		input char*@1,int32@2=0
+		return int32%0
+	function HasBool
+		input char*@1,int32@2=0
+		return int32%0
+	function HasFloat
+		input char*@1,int32@2=0
+		return int32%0
+	function HasDouble
+		input char*@1,int32@2=0
+		return int32%0
+	function HasPointer
+		input char*@1,int32@2=0
+		return int32%0
+	function HasMessenger
+		input char*@1,int32@2=0
+		return int32%0
+	function HasRef
+		input char*@1,int32@2=0
+		return int32%0
+	function HasMessage
+		input char*@1,int32@2=0
+		return int32%0
+#	function HasFlat
+#		input char*@1,int32@2=0
+#		return int32%0
+	function HasData
+		input char*@1,int32@2=0
+		return int32%0
+	function FlattenedSize
+		return int32%0
+	function Flatten
+		input BDataIO*@1
+		param BDataIO*@1,&ssize_t%2
+		status status_t%0
+		return ssize_t%2
+		input ssize_t@1
+		param char*%2[@1,ssize_t@1
+		return char*%2[@1
+	function Unflatten
+		input char*@1
+		status status_t%0
+		input BDataIO*@1
+	function IsSystem
+		return int32%0
+	function PrintToStream

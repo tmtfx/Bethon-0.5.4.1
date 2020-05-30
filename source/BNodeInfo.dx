@@ -1,0 +1,47 @@
+#  Copyright 2001 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<storage/NodeInfo.h>
+
+class NodeInfo ref
+	constructor
+		param
+		param BNode*@1
+	function BNodeInfo
+		input
+		return BAppFileInfo*%0
+		input BNode*@1
+	function SetTo
+		input BNode*@1
+		status status_t%0
+	function InitCheck
+		input
+		return status_t%0
+	# GetType et al. - use BNode::read_attr, better documented storage.
+	function SetType
+		input const char*@1
+		status status_t%0
+	function GetIcon
+		input BBitmap*@1,icon_size@2=B_LARGE_ICON
+		status status_t%0
+	function SetIcon
+		input const BBitmap*@1,icon_size@2=B_LARGE_ICON
+		status status_t%0
+	# GetPreferredApp
+	function SetPreferredApp
+		input const char*@1,app_verb@2=B_OPEN
+		status status_t%0
+	function GetAppHint
+		input
+		param &entry_ref%1
+		status status_t%0
+		return entry_ref%1
+	function SetAppHint
+		input entry_ref*@1
+		status status_t%0
+	function GetTrackerIcon
+		input BBitmap*@1,icon_size@2=B_LARGE_ICON
+		status status_t%0

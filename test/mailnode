@@ -1,0 +1,103 @@
+#!/boot/common/bin/python
+import posix
+import posixpath
+#
+#  Get certain mail attributes from some standard file (you will have
+#  to edit this program to set that up), and apply them to the files
+#  specified on the command line, along with others determined from
+#  the file header etc.  For example, you could use the poplib module
+#  to download a bunch of files, then run this on them.
+#
+#  The results are copied to another directory, the originals aren't
+#  changed.
+#
+#  I'm not sure this always produces valid BeMail format files.  Feel
+#  free to fix it!
+#
+import struct
+import sys
+
+import rfc822
+
+import BNode
+
+def aList(stdattr, file):
+    al = []
+    msg = rfc822.Message(open(file, 'r'))
+    st = posix.stat(file)
+    date = st[8]
+    size = st[6]
+    s = 0
+    for satt in stdattr:
+        nm, att = satt
+        sty, sln, slv = att
+        if nm[:5] == 'BEOS:':
+            al.append((nm, att))
+            # print satt
+            # print al[-1]
+        elif nm[:5] == 'MAIL:':
+            hd = nm[5:]
+            if hd == 'when':
+        	slv = struct.pack('!l', date)
+        	al.append((nm, (sty, 4, slv)))
+        	# print satt
+        	# print al[-1]
+            elif hd == 'content_length':
+        	# print 'old content_length', repr(slv)
+        	slv = struct.pack('!l', size - msg.startofbody)
+        	al.append((nm, (sty, 4, slv)))
+        	# print satt
+        	# print al[-1]
+            elif hd == 'header_length':
+        	# print 'old header_length', repr(slv)
+        	slv = struct.pack('!l', msg.startofbody)
+        	al.append((nm, (sty, 4, slv)))
+        	# print satt
+        	# print al[-1]
+            else:
+        	if hd == 'reply':
+        	    hd = 'reply-to'
+        	slv = msg.getheader(hd)
+        	if slv is None:
+        	    if hd in ('status',):
+        		al.append(satt)
+        	else:
+        	    slv = slv + chr(0)
+        	    al.append((nm, (sty, len(slv), slv)))
+        	    # print satt
+        	    # print al[-1]
+        else:
+            print 'unknown standard attr', satt
+    return al
+
+def getstd():
+    raise ValueError, 'hm, where can we find a BeMail mail file?'
+    n = BNode.BNode('/boot/home/mail/in/Ron Theis_091997:1')
+    return n.ReadAttr()
+
+def fix(std, file):
+    al = aList(std, file)
+    # print 'New attr list', al
+    n = BNode.BNode(file)
+    for s, a in al:
+        n.WriteAttr(s, a)
+
+def nlcopy(file, todir):
+    f = todir + '/' + posixpath.basename(file)
+    ip = open(file, 'r')
+    op = open(f, 'w')
+    while 1:
+        z = ip.readline()
+        if z:
+            op.write(z[:-1] + '\r\n')
+        else:
+            break
+    op.close()
+    return f
+
+std = getstd()
+
+todir = sys.argv[1]
+for arg in sys.argv[2:]:
+    f = nlcopy(arg, todir)
+    fix(std, f)

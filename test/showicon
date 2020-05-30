@@ -1,0 +1,51 @@
+#!/boot/common/bin/python
+
+import sys
+
+import BApplication
+from BBitmap import BBitmap
+from BBox import BBox
+from BNode import BNode
+from BNodeInfo import BNodeInfo
+from BWindow import BWindow
+
+from AppKit import B_QUIT_REQUESTED
+from InterfaceKit import B_TITLED_WINDOW,B_WILL_DRAW,B_CMAP8,B_FOLLOW_ALL,B_PLAIN_BORDER,B_FANCY_BORDER
+
+class Bitview(BBox):
+	def __init__(self, frame, node):
+		BBox.__init__(self, frame, 'bitbox', B_FOLLOW_ALL,
+			B_WILL_DRAW, B_PLAIN_BORDER)
+		self.bits = BBitmap((0, 0, 31, 31), B_CMAP8)
+		ni = BNodeInfo(node)
+		ni.GetTrackerIcon(self.bits)
+	def Draw(self, rect):
+		BBox.Draw(self, rect)
+		inset = (4, 4, 36, 36)
+		self.DrawBitmap(self.bits, inset)
+
+
+class BVW(BWindow):
+	def __init__(self, node):
+		self.box = Bitview((0, 0, 39, 39), node)
+		BWindow.__init__(self, (100, 100, 139, 139), 'bvw',
+			B_TITLED_WINDOW, B_WILL_DRAW)
+		self.AddChild(self.box)
+
+	def QuitRequested(self):
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class App(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self, 'application/x-vnd.showicon')
+	def ReadyToRun(self):
+		node = BNode(sys.argv[1])
+		self.window = BVW(node)
+		self.window.Show()
+
+if len(sys.argv) < 2:
+	print >> sys.stderr, 'Usage: showicon file'
+	sys.exit(1)
+app = App()
+app.Run()

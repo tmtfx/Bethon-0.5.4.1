@@ -1,0 +1,15 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/CheckBox.h>
+
+class CheckBox handler
+	base Control
+	constructor
+		param BRect@1,const char*@2,const char*@3,BMessage*@4,uint32@5,uint32@6
+	function BCheckBox
+		input BRect@1,const char*@2,const char*@3,BMessage*@4!dup,uint32@5=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@6=B_WILL_DRAW|B_NAVIGABLE
+		return BCheckBox*%0

@@ -1,0 +1,178 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/TextView.h>
+	<app/Looper.h>
+	<interface/Region.h>
+
+class TextView handler
+	base View
+	constructor
+		param BRect@1,const char*@2,BRect@3,uint32@4,uint32@5
+		param BRect@1,const char*@2,BRect@3,const BFont*@4,const rgb_color*@5,uint32@6,uint32@7
+	function BTextView
+		input BRect@1,const char*@2,BRect@3,uint32@4,uint32@5=B_WILL_DRAW|B_PULSE_NEEDED
+		return BTextView*%0
+		input BRect@1,const char*@2,BRect@3,const BFont*@4,const rgb_color*@5,uint32@6,uint32@7
+	function SetText
+		input pstring@1,text_run_array*@2=0
+		param pstring@1.ptr,pstring@1.len,text_run_array*@2
+		input BFile*@1,int32@2,int32@3,text_run_array*@4=0
+		input pstring@1
+		param pstring@1.ptr,pstring@1.len
+		input BFile*@1,int32@2,int32@3
+	function Insert
+		input pstring@1,text_run_array*@2=0
+		param pstring@1.ptr,pstring@1.len,text_run_array*@2
+		input int32@1,pstring@2,text_run_array*@3=0
+		param int32@1,pstring@2.ptr,pstring@2.len,text_run_array*@3
+	function Delete
+		input
+		input int32@1,int32@2
+	function Text
+		return const char*%0
+	function TextLength
+		return int32%0
+	function GetText
+		input int32@1,int32@2
+		param int32@1,int32@2,char*%3[@2
+		return char*%3[@2
+	function GetSelection
+		input
+		param &int32%1,&int32%2
+		return int32%1,int32%2
+	function ByteAt
+		input int32@1
+		return uint8%0
+	function CountLines
+		return int32%0
+	function CurrentLine
+		return int32%0
+	function GoToLine
+		input int32@1
+	function Copy
+		input BClipboard*@1
+	function Cut
+		input BClipboard*@1
+	function Paste
+		input BClipboard*@1
+	hook AcceptsDrop
+		input BMessage*@1
+		return bool%0
+#	hook AcceptsPaste
+#		input BClipboard*@1
+#		return bool%0
+	function Select
+		input int32@1,int32@2
+	function SelectAll
+	function SetFontAndColor
+		input BFont*@1,uint32@2=B_FONT_ALL,rgb_color*@3=0
+		input int32@1,int32@2,BFont*@3,uint32@4=B_FONT_ALL,rgb_color*@5=0
+	function Clear
+	function GetFontAndColor
+		input int32@1
+		param int32@1,&BFont%2,&rgb_color%3
+		return BFont%2,rgb_color%3
+		input
+		param &BFont%1,&uint32%2,&rgb_color%3,&bool%4
+		return BFont%1,uint32%2,rgb_color%3,bool%4
+	function SetRunArray
+		input int32@1,int32@2,text_run_array*@3
+	function RunArray
+		input int32@1,int32@2
+		param int32@1,int32@2,&int32%3
+		return text_run_array*%0[%3
+	function LineAt
+		input int32@1
+		return int32%0
+		input BPoint@1
+	function PointAt
+		input int32@1
+		param int32@1,&float%2
+		return BPoint%0,float%2
+	function OffsetAt
+		input BPoint@1
+		return int32%0
+		input int32@1
+	hook FindWord
+		input int32@1
+		param int32@1,int32*@2,int32*@3
+		return *int32*@2,*int32*@3
+	hook CanEndLine
+		input int32@1
+		return bool%0
+	function LineWidth
+		input int32@1=0
+		return float%0
+	function LineHeight
+		input int32@1=0
+		return float%0
+	function TextHeight
+		input int32@1,int32@2
+		return float%0
+	function GetTextRegion
+		input int32@1,int32@2
+		param int32@1,int32@2,&BRegion%3
+		return BRegion%3
+	function ScrollToOffset
+		input int32@1
+	function ScrollToSelection
+	function Highlight
+		input int32@1,int32@2
+	function SetTextRect
+		input BRect@1
+	function TextRect
+		return BRect%0
+	function SetStylable
+		input bool@1
+	function IsStylable
+		return bool%0
+	function SetTabWidth
+		input float@1
+	function TabWidth
+		return float%0
+	function MakeSelectable
+		input bool@1=1
+	function IsSelectable
+		return bool%0
+	function MakeEditable
+		input bool@1=1
+	function IsEditable
+		return bool%0
+	function SetWordWrap
+		input bool@1
+	function DoesWordWrap
+		return bool%0
+	function SetMaxBytes
+		input int32@1
+	function MaxBytes
+		return int32%0
+	function DisallowChar
+		input uint32@1
+	function AllowChar
+		input uint32@1
+	function SetAlignment
+		input alignment@1
+	function Alignment
+		return alignment%0
+	function SetAutoindent
+		input bool@1
+	function DoesAutoindent
+		return bool%0
+	function SetColorSpace
+		input color_space@1
+	function ColorSpace
+		return color_space%0
+	function MakeResizable
+		input bool@1,BView*@2=0
+	function IsResizable
+		return bool%0
+	function DoesUndo
+		return bool%0
+	function HideTyping
+		input bool@1
+	function IsTypingHidden
+		return bool%0

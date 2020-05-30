@@ -1,0 +1,97 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/Slider.h>
+class Slider handler
+	base Control
+	constructor
+		param BRect@1,const char*@2,const char*@3,BMessage*@4,int32@5,int32@6,thumb_style@7,uint32@8,uint32@9
+	function BSlider
+		input BRect@1,const char*@2,const char*@3,BMessage*@4!dup,int32@5,int32@6,thumb_style@7=B_BLOCK_THUMB,uint32@8=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@9=B_FRAME_EVENTS|B_WILL_DRAW|B_NAVIGABLE
+		#input BRect@1,const char*@2,const char*@3,BMessage*@4!dup,int32@5,int32@6,orientation@7,thumb_style@8,uint32@9,uint32@10
+		return BSlider*%0
+	function SetBarColor
+		input rgb_color@1
+	function BarColor
+		input
+		return rgb_color%0
+	# V5 only
+	function SetBarThickness
+		input float@1
+	# V5 only
+	function BarThickness
+		input
+		return float%0
+	function BarFrame
+		input
+		return BRect%0
+	hook DrawBar
+		param
+	function OffscreenView
+		input
+		return BView*%0
+	function SetHashMarks
+		input hash_mark_location@1
+	function HashMarks
+		input
+		return hash_mark_location%0
+	function SetHashMarkCount
+		input int32@1
+	function HashMarkCount
+		input
+		return int32%0
+	function SetKeyIncrementValue
+		input int32@1
+	function KeyIncrementValue
+		input
+		return int32%0
+	function SetLimitLabels
+		input const char*@1,const char*@2
+	function MinLimitLabel
+		input
+		return const char*%0
+	function MaxLimitLabel
+		input
+		return const char*%0
+	function SetModificationMessage
+		input BMessage*@1!dup
+	function ModificationMessage
+		input
+		return BMessage*%0
+	# V5 only
+	function SetOrientation
+		input orientation@1
+	# V5 only
+	function Orientation
+		input
+		return orientation%0
+	function SetPosition
+		input float@1
+	function Position
+		input
+		return float%0
+	function SetSnoozeAmount
+		input int32@1
+	function SnoozeAmount
+		input
+		return int32%0
+	function SetStyle
+		input thumb_style@1
+	function Style
+		input
+		return thumb_style%0
+	function Value
+		return int32%0
+	function ValueForPoint
+		input BPoint@1
+		return int32%0
+	function UseFillColor
+		input bool@1,rgb_color*@2
+		param bool@1,rgb_color*@2
+	function FillColor
+		input
+		param &rgb_color%1
+		return bool%0,rgb_color%1

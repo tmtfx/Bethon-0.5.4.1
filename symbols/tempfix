@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Temporary fix for generated SupportKit.py
+#
+
+grep -v "BPrivate::" SupportKit.py | sed 's/[*]//g' > temp && mv temp SupportKit.py
+

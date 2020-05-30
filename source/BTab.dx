@@ -1,0 +1,41 @@
+#  Copyright 2000 by Matthew Schinckel, Adelaide, Australia.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/TabView.h>
+class Tab handler
+	constructor
+		param BView*@1
+	function BTab
+		input BView*@1=NULL
+		return BTab*%0
+	function IsEnabled
+		input
+		return bool%0
+	function SetEnabled
+		input bool@1
+	function IsSelected
+		input
+		return bool%0
+	function Deselect
+		input
+	function Select
+		input BView*@1
+	function Label
+		input
+		return const char*%0
+	function SetLabel
+		input const char*@1
+	function IsFocus
+		input
+		return bool%0
+	# function MakeFocus
+	# 	input bool@1=true
+	# 	param bool@1
+	function View
+		input
+		return BView*%0=None
+	function SetView
+		input BView*@1

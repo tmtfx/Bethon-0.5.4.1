@@ -1,0 +1,74 @@
+#!/boot/common/bin/python
+import posix
+import posixpath
+import struct
+import sys
+import traceback
+
+import BNode
+import BFilePanel
+import BMessage
+
+import BApplication
+import bstructs
+
+from AppKit import B_QUIT_REQUESTED,B_REFS_RECEIVED
+
+def attr(node):
+    # n = BNode.BNode(file)
+    al = []
+    while 1:
+	try:
+	    a = node.GetNextAttrName()
+	except:	
+	    a = None
+	if a is None:
+	    break
+	info = bstructs.attr_info(node.GetAttrInfo(a))
+	al.append((a, info,  node.ReadAttr(a, 0, 0, 1024)))
+    return al
+
+class NodeLister(BApplication.BApplication):
+	def __init__(self, sig):
+		BApplication.BApplication.__init__(self, sig)
+		self.refs = []
+	def __str__(self):
+		return 'TestApplication'
+
+	def showAttributes(self):
+		for node in self.refs:
+			print node
+			for n, i, v in attr(node):
+				z = v.find('\000')
+				if z >= 0:
+					v = v[:z]
+				print struct.pack('!l', i.type), n, len(v), v
+	def RefsReceived(self, msg):
+		i = 0
+		while 1:
+			try:
+				self.refs.append(BNode.BNode(msg.FindRef("refs", i)))
+				print struct.pack('!l', msg.what)
+			except BMessage.error, val:
+				i = None
+			if i is None:
+				break
+			i = i + 1
+		self.showAttributes()
+		self.PostMessage(B_QUIT_REQUESTED)
+	def ArgvReceived(self, argv):
+		if len(argv) > 2:
+			for arg in argv[2:]:
+				self.refs.append(BNode.BNode(arg))
+			self.showAttributes()
+			self.PostMessage(B_QUIT_REQUESTED)
+	def ReadyToRun(self):
+		if not self.refs:
+			self.fp = BFilePanel.BFilePanel()
+			self.fp.SetPanelDirectory(".")
+			self.fp.Show()
+			self.fp.SetMessage(BMessage.BMessage(1599230531))
+
+app = NodeLister('application/python-test')
+
+app.Run()

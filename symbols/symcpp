@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+#	Extract B_ symbols from .h files specified on command line.
+#
+echo '#define SYMLINK_MAX (16)'
+for h
+do
+	f=${h##*/}
+	d=${h%/$f}
+	d=${d##*/}
+	echo '#include <'$d/$f'>'
+done
+cat outhead.cpp
+for h
+do
+	echo '	puts("# '$h'");'
+	printb < $h
+done
+echo '}'

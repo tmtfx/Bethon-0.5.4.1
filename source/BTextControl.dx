@@ -1,0 +1,38 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/TextControl.h>
+
+class TextControl handler
+	base Control
+	constructor
+		param BRect@1,const char*@2,const char*@3,const char*@4,BMessage*@5,uint32@6,uint32@7
+	function BTextControl
+		input BRect@1,const char*@2,const char*@3,const char*@4,BMessage*@5!dup,uint32@6=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@7=B_WILL_DRAW|B_NAVIGABLE
+		return BTextControl*%0
+	function SetText
+		input const char*@1
+	function Text
+		return const char*%0
+	function SetValue
+		input int32@1
+	function TextView
+		return BTextView*%0
+	function SetModificationMessage
+		input BMessage*@1!dup
+	function ModificationMessage
+		return BMessage*%0
+	function SetAlignment
+		input alignment@1,alignment@2
+	function GetAlignment
+		param &alignment%1,&alignment%2
+		return alignment%1,alignment%2
+	function SetDivider
+		input float@1
+	function Divider
+		return float%0
+	function SetEnabled
+		input bool@1

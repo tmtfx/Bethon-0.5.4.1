@@ -1,0 +1,38 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+#  Not sure I ever even tried this one out.
+
+include
+	<support/Locker.h>
+
+class Locker var
+	constructor
+		param
+		param bool@1
+		param const char*@1
+		param const char*@1,bool@2
+#		param const char*@1,bool@2,bool@3
+	function BLocker
+		input
+		return BLocker*%0
+		input bool@1
+		input const char*@1
+		input const char*@1,bool@2
+#		input const char*@1,bool@2,bool@3
+	function Lock
+		return bool%0
+	function Unlock
+	function IsLocked
+		return bool%0
+	function LockWithTimeout
+		input bigtime_t@1
+		status status_t%0
+	function LockingThread
+		return thread_id%0
+	function CountLocks
+		return int32%0
+	function CountLockRequests
+		return int32%0

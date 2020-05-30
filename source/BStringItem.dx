@@ -1,0 +1,20 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/ListItem.h>
+	<interface/View.h>
+
+class StringItem virtual
+	base ListItem
+	constructor
+		param const char*@1,uint32@2,bool@3
+	function BStringItem
+		input const char*@1,uint32@2=0,bool@3=1
+		return BStringItem*%0
+	function SetText
+		input const char*@1
+	function Text
+		return const char*%0

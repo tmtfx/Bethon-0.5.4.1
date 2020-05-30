@@ -1,0 +1,45 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/ScrollBar.h>
+
+class ScrollBar handler
+	base View
+	constructor
+		param BRect@1,const char*@2,BView*@3,float@4,float@5,orientation@6
+	function BScrollBar
+		input BRect@1,const char*@2,BView*@3,float@4,float@5,orientation@6
+		return BScrollBar*%0
+	function SetValue
+		input float@1
+	function Value
+		return float%0
+	function SetProportion
+		input float@1
+	function Proportion
+		return float%0
+	hook ValueChanged
+		param float@1
+		input float@1
+	function SetRange
+		input float@1,float@2
+	function GetRange
+		input
+		param &float%1,&float%2
+		return float%1,float%2
+	function SetSteps
+		input float@1,float@2
+	function GetSteps
+		input
+		param &float%1,&float%2
+		return float%1,float%2
+	function SetTarget
+		input BView*@1
+		input const char*@1
+	function Target
+		return BView*%0
+	function Orientation
+		return orientation%0

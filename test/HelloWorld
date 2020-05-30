@@ -1,0 +1,40 @@
+#!/boot/common/bin/python
+
+import BApplication
+from BStringView import BStringView
+from BWindow import BWindow
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NOT_RESIZABLE,B_NOT_ZOOMABLE
+
+from AppKit import B_QUIT_REQUESTED
+
+class HelloWindow(BWindow):
+	def __init__(self):
+		BWindow.__init__(self, (100, 80, 260, 120), 'Hello',
+			B_TITLED_WINDOW, B_NOT_RESIZABLE|B_NOT_ZOOMABLE)
+
+		# set up a rectangle and instantiate a new view
+		self.view = BStringView(self.Bounds(), 'HelloView',
+			'Hello, world!', B_FOLLOW_ALL, B_WILL_DRAW)
+		from BFont import be_bold_font
+		self.view.SetFont(be_bold_font)
+		self.view.SetFontSize(24.0)
+
+		self.AddChild(self.view)
+	def QuitRequested(self):
+		#  QuitRequested() is a Be API "hook" that BeOS can
+		#  call because this class instance "bound" itself to
+		#  the BWindow.
+		BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class HelloApplication(BApplication.BApplication):
+	def __init__(self):
+		BApplication.BApplication.__init__(self,
+			"application/x-vnd.Be-HelloWorldSample")
+	def ReadyToRun(self):
+		window = HelloWindow()
+		window.Show()
+
+myApplication = HelloApplication()
+myApplication.Run()

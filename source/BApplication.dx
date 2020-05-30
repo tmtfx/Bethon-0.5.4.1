@@ -1,0 +1,91 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<app/Application.h>
+	<app/Looper.h>
+	<app/Handler.h>
+	<app/Message.h>
+	<app/MessageQueue.h>
+	<app/MessageFilter.h>
+	<app/Messenger.h>
+	<app/Roster.h>
+	<interface/PopUpMenu.h>
+	<interface/Rect.h>
+	<interface/Point.h>
+	<interface/Window.h>
+
+class Application looper
+	base Looper
+	constructor
+		param const char *@1
+		param const char *@1, status_t *@2
+	function BApplication
+		input const char*@1
+		return BApplication*%0
+		code 3
+			PyDict_SetItemString(module_dict, "be_app", (PyObject *) self);
+			Py_INCREF(self);
+	hook Pulse
+	hook ReadyToRun
+	hook	ArgvReceived
+		input argvc@2[int32@1
+		param int32@1,char**@2
+#		byhand
+#		code 2
+#			PyObject *Ptpl = PyTuple_New(V1);
+#			if (Ptpl) {
+#			int i;
+#			for (i = 0; i < V1; ++i)
+#			PyTuple_SetItem(Ptpl, i, PyString_FromString(V2[i]));
+#			argv = Py_BuildValue("(O)", Ptpl);
+#			} else
+#			goto abt;
+ 
+	hook AppActivated
+		param bool@1
+		input bool@1
+	hook RefsReceived
+		param BMessage*@1
+		input BMessage*@1
+	hook AboutRequested
+	function ShowCursor
+	function HideCursor
+	function ObscureCursor
+	function IsCursorHidden
+		return bool%0
+	function SetCursor
+		input const void*@1
+	function CountWindows
+		return int32%0
+	function WindowAt
+		input int32@1
+		return BWindow*%0
+	function IsLaunching
+		return bool%0
+	function GetAppInfo
+		input
+		param &app_info%1
+		return app_info%1
+		status status_t%0
+	function AppResources
+		return BResources*%0
+	function SetPulseRate
+		input bigtime_t@1
+	# Special version of Run for Application (?)
+	# init wrapper attachment, thread state, release lock etc.
+	function Run
+		return thread_id%0
+		code 2
+			PyEval_InitThreads();
+			self->tstate = PyThreadState_Get();
+			mkDerivative(self, dcobj)
+			dcobj->initPyThread(self->tstate);
+			self->sysref = 1;
+			// PyEval_ReleaseThread(self->tstate);
+		code 3
+			// PyEval_AcquireThread(self->tstate);
+			if (PyErr_Occurred())
+				return 0;

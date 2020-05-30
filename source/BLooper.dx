@@ -1,0 +1,121 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<app/Looper.h>
+	<app/Handler.h>
+	<app/Message.h>
+	<app/MessageQueue.h>
+	<app/MessageFilter.h>
+
+class Looper looper
+	base Handler
+	constructor
+		param const char*@1,int32@2,int32@3
+	function BLooper
+		input const char*@1=0,int32@2=B_NORMAL_PRIORITY,int32@3=B_LOOPER_PORT_DEFAULT_CAPACITY
+		return BLooper*%0
+	function PostMessage
+		input uint32@1
+		status status_t%0
+		input BMessage*@1
+		input uint32@1,BHandler*@2,BHandler*@3=0
+		input BMessage*@1,BHandler*@2,BHandler*@3=0
+	#  XXX handler may be null!
+	hook DispatchMessage
+		param BMessage*@1,BHandler*@2
+		input BMessage*@1,BHandler*@2
+	virtual DispatchMessage
+		input BMessage*@1,BHandler*@2
+	function CurrentMessage
+		input
+		return BMessage*%0
+	function DetachCurrentMessage
+		input
+		return BMessage*%0
+	function MessageQueue
+		input
+		return BMessageQueue*%0
+	function IsMessageWaiting
+		input
+		return bool%0
+	function AddHandler
+		input BHandler*@1!incref
+	function RemoveHandler
+		input BHandler*@1
+		return bool%0
+	function CountHandlers
+		input
+		return int32%0
+	function HandlerAt
+		input int32@1
+		return BHandler*%0
+	function IndexOf
+		input BHandler*@1
+		return int32%0
+	function PreferredHandler
+		input
+		return BHandler*%0
+	function SetPreferredHandler
+		input BHandler*@1
+	#  Let's just say this is not of interest to override in Python
+	#  class wrappers, same with Quit()
+	function Run
+		input
+		return thread_id%0
+		code 2
+			PyEval_InitThreads();
+			self->tstate = PyThreadState_New(PyThreadState_Get()->interp);
+			mkDerivative(self, dcobj)
+			dcobj->initPyThread(self->tstate);
+			self->sysref = 1;
+	function Quit
+	hook QuitRequested
+		param
+		return bool%0
+	virtual QuitRequested
+		return bool%0
+	function Lock
+		input
+		return bool%0
+	function Unlock
+		input
+	function IsLocked
+		input
+		return bool%0
+	function LockWithTimeout
+		input bigtime_t@1
+		status status_t%0
+	function Thread
+		input
+		return thread_id%0
+	function Team
+		input
+		return team_id%0
+	function LooperForThread
+		input thread_id@1
+		return BLooper*%0
+	function LockingThread
+		input
+		return thread_id%0
+	function CountLocks
+		input
+		return int32%0
+	function CountLockRequests
+		input
+		return int32%0
+	function Sem
+		input
+		return sem_id%0
+	# 3 nominally virtual functions
+	function AddCommonFilter
+		input BMessageFilter*@1
+	function RemoveCommonFilter
+		input BMessageFilter*@1
+		return bool%0
+	function SetCommonFilterList
+		input BList*@1
+	function CommonFilterList
+		return BList*%0

@@ -1,0 +1,239 @@
+#!/boot/home/config/bin/python
+#  Copyright 2000 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+import string
+import sys
+
+import BApplication
+from BBox import BBox
+from BStringItem import BStringItem
+from BOutlineListView import BOutlineListView
+from BScrollView import BScrollView
+from BTextView import BTextView
+from BWindow import BWindow
+import roster
+from BMessage import BMessage
+import BMessenger
+from BPropertyInfo import BPropertyInfo
+
+from scriptable import Scriptable
+
+from wrap import WrapThis
+from errpt import LastChanceLooper
+
+from InterfaceKit import B_FOLLOW_ALL,B_TITLED_WINDOW,B_WILL_DRAW,B_NOT_RESIZABLE,B_NOT_ZOOMABLE,B_FOLLOW_LEFT,B_FOLLOW_RIGHT,B_FOLLOW_TOP,B_FOLLOW_BOTTOM,B_PLAIN_BORDER,B_FANCY_BORDER,B_NO_BORDER
+
+from AppKit import B_QUIT_REQUESTED,B_NO_SPECIFIER,B_DIRECT_SPECIFIER,B_INDEX_SPECIFIER,B_REVERSE_INDEX_SPECIFIER,B_RANGE_SPECIFIER,B_REVERSE_RANGE_SPECIFIER,B_NAME_SPECIFIER,B_ID_SPECIFIER,B_GET_SUPPORTED_SUITES,B_GET_PROPERTY,B_SET_PROPERTY,B_COUNT_PROPERTIES,B_REPLY,B_NO_REPLY,B_MESSAGE_NOT_UNDERSTOOD
+
+from message import Message
+
+#
+#  ScriptOb manages the interaction with the scriptable application,
+#  represented by a BMessenger.
+#
+class ScriptOb:
+	def __init__(self, mr):
+		self.mr = mr
+	def send(self, req, spec = None):
+		#  Send specifiers message,
+		#  return reply message.
+
+		req = BMessage(req)
+		if spec:
+			if type(spec) == type(''):
+				req.AddSpecifier(spec)
+			else:
+				spec, i = spec
+				req.AddSpecifier(spec, i)
+		rep = self.mr.SendMessageReply(req)
+		if rep.what == B_REPLY or rep.what == B_NO_REPLY:
+			return rep
+		elif rep.what == B_MESSAGE_NOT_UNDERSTOOD:
+			raise ValueError, rep.FindString('message') + ': ' + repr(spec)
+		try:
+			error = rep.FindInt32('error')
+		except:
+			error = 0
+		if error:
+			raise SystemError, 'Scripting error 0x%08x' % error
+
+	def property(self, property):
+		#  Return result object from reply to GET_PROPERTY message.
+		#  This object will be whatever type is most appropriate
+		#  for the retrieved quantity.
+
+		rep = self.send(B_GET_PROPERTY, property)
+		if rep.what == B_REPLY:
+			return Message(rep).get('result')[0]
+		else:
+			return None
+
+	def count(self, spec):
+		#  Count instances of a property.
+
+		rep = self.send(B_COUNT_PROPERTIES, spec)
+		if rep.what == B_REPLY:
+			return Message(rep).get('result')[0]
+		else:
+			return None
+
+	def suites(self):
+		#  Get supported suites.  This aborts when called
+		#  on Terminal for instance - get back NONE message
+		#  with no contents.
+
+		rep = self.send(B_GET_SUPPORTED_SUITES, None)
+		t, count = rep.GetInfo('messages')
+		pl = ()
+		for i in range(count):
+			p = BPropertyInfo()
+			rep.FindFlat('messages', i, p)
+			pl = pl + p.Properties()
+		return pl
+
+class ListView(WrapThis):
+	HiWhat = 32
+	def __init__(self, scr, frame, name):
+		self.lv = BOutlineListView(frame, name, 1, B_FOLLOW_ALL)
+		self.scr = scr
+		f = self.lv.GetFont()
+		h = f.GetHeight()
+		h = h[0] + h[1] + h[2]
+		h = float(int(h + 0.5))
+		ww = 100.0
+		wh = 4.0
+		pl = []
+		self.properties = []
+		insert = 0
+		for name, commands, specifiers, usage, extra in scr.suites():
+			self.properties.append((name, None, commands, specifiers))
+			insert = insert + 1
+			cl = []
+			for c in commands:
+				cl.append(Scriptable.scr_lookup[c])
+			commandstr = string.join(cl, ', ')
+			cl = []
+			for c in specifiers:
+				cl.append(Scriptable.scr_lookup[c])
+			specifierstr = string.join(cl, ', ')
+			i = '%s: (%s) (%s) %s %s' % (name, commandstr,
+				specifierstr, usage, extra)
+			item = BStringItem(i)
+			self.lv.AddItem(item)
+			if B_COUNT_PROPERTIES in commands:
+				count = self.scr.count(name)
+				for sub in range(count - 1, -1, -1):
+					self.properties.insert(insert,
+						(name, sub, commands, specifiers))
+					i = '%s %d' % (name, sub)
+					subitem = BStringItem(i)
+					self.lv.AddUnder(subitem, item)
+				insert = insert + count
+			iw = f.StringWidth(i)
+			if iw > ww:
+				ww = iw
+			wh = wh + h
+		if wh > frame[3] - frame[1]:
+			wh = frame[3] - frame[1]
+		elif wh < 40.0:
+			wh = 40.0  # Guess at minimum for thumbs
+		ww = ww + 16.0
+		self.wrap(self.lv)
+		self.this.ResizeTo(ww, wh)
+		grey = (220, 220, 220, 0)
+		self.this.SetLowColor(grey)
+		self.this.SetViewColor(grey)
+		msg = BMessage(self.HiWhat)
+		self.this.SetInvocationMessage(msg)
+		self.text = BTextView((frame[0], frame[1] + wh + 8.0,
+			frame[0] + ww, frame[1] + wh + 40.0), 'text',
+			(0.0, 0.0, ww, 32.0),
+			B_FOLLOW_BOTTOM|B_FOLLOW_LEFT|B_FOLLOW_RIGHT,
+			B_WILL_DRAW)
+	def checkup(self, msg):
+		c = self.this.CurrentSelection(0)
+		if c >= 0:
+			name, index, commands, specifiers = self.properties[c]
+			# print name, repr(index)
+			if index is None:
+				try:
+					p = self.scr.property(name)
+				except ValueError, err:
+					p = err[0]
+				title = name
+			else:
+				try:
+					p = self.scr.property((name, index))
+				except ValueError, err:
+					p = err[0]
+				title = '%s[%d]' % (name, index)
+			# print p, type(p), type(self.scr.mr)
+			if type(p) == type(self.scr.mr):
+				mrview(p, title, 0)
+			else:
+				self.text.SetText(repr(p))
+
+class ScrollWindow(WrapThis, LastChanceLooper):
+	x0 = 80.0
+	y0 = 60.0
+	def __init__(self, scr, title, main):
+		self.mainwindow = main
+		l = ScrollWindow.x0
+		t = ScrollWindow.y0
+		r = l + 50.0
+		b = t + 240.0
+		ScrollWindow.x0 = l + 10.0
+		ScrollWindow.y0 = t + 10.0
+		self.wrap(BWindow((l, t, r, b), title, B_TITLED_WINDOW,
+			B_NOT_ZOOMABLE))
+		# set up a rectangle and instantiate a new view
+		l, t, r, b = self.this.Bounds()
+		self.box = BBox((l, t, r, b), 'box', B_FOLLOW_ALL, B_NO_BORDER)
+		self.view = ListView(scr, (l + 8.0, t + 8.0, r - 8.0, b - 8.0),
+			'ListView')
+		sv = BScrollView('ScrollView', self.view.this, B_FOLLOW_ALL,
+			B_WILL_DRAW, 0, 1, B_PLAIN_BORDER)
+		l, t, r, b = sv.Bounds()
+		self.this.ResizeTo(r + 15.0, b + 63.0)
+		self.box.ResizeTo(r + 16.0, b + 64.0)
+		self.box.AddChild(sv)
+		self.box.AddChild(self.view.text)
+		self.this.AddChild(self.box)
+		#  PgUp/Dn don't work scrollbars until BListView has focus.
+		self.view.lv.MakeFocus(1)
+	def MessageReceived(self, msg):
+		if msg.what == self.view.HiWhat:
+			self.view.checkup(msg)
+		else:
+			self.this.MessageReceived(msg)
+	def QuitRequested(self):
+		if self.mainwindow:
+			BApplication.be_app.PostMessage(B_QUIT_REQUESTED)
+		return 1
+
+class ScrollApplication(WrapThis):
+	def __init__(self):
+		self.wrap(BApplication.BApplication("application/x-vnd.ScriptBrowser"))
+	def ArgvReceived(self, argv):
+		teamname = argv[2]
+		try:
+			self.team = string.atoi(teamname)
+		except ValueError:
+			self.team = roster.find(teamname).team
+		self.title = teamname
+	def ReadyToRun(self):
+		m = BMessenger.BMessenger(None, self.team)
+		mrview(m, self.title, 1)
+	def QuitRequested(self):
+		return 1
+
+def mrview(mr, title, main):
+	s = ScriptOb(mr)
+	window = ScrollWindow(s, title, main)
+	window.this.Show()
+
+myApplication = ScrollApplication()
+myApplication.this.Run()

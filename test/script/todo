@@ -1,0 +1,2 @@
+something wrong with BMessage::GetInfo(), returns (2, <nil>) and
+then stuff crashes.

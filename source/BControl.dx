@@ -1,0 +1,34 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/Control.h>
+
+class Control handler
+	base View Invoker
+	constructor
+		param BRect@1,const char*@2,const char*@3,BMessage*@4,uint32@5,uint32@6
+	function BControl
+		input BRect@1,char*@2,char*@3,BMessage*@4!dup,uint32@5,uint32@6
+		return BControl*%0
+	virtual SetLabel
+		input char*@1
+	function Label
+		return const char*%0
+	function Value
+		input
+		return int32%0
+	hook SetValue
+		param int32@1
+		input int32@1
+	virtual SetValue
+		input int32@1
+	hook SetEnabled
+		param bool@1
+		input bool@1
+	virtual SetEnabled
+		input bool@1
+	function IsEnabled
+		return bool%0

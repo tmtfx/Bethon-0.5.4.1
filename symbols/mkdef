@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+#  Main script.  Make and compile symbol definer, analyze errors,
+#  make filter to remove offending parts of symbol definer, repeat
+#  until no errors.
+#
+#  mkdef name include-file [include-file [...]]
+#
+#  I would add some comments to the little sed and awk scripts used
+#  in this process, but I don't understand them myself any more.
+#
+name=$1
+shift
+./symcpp $* > xxsym.cpp
+xp=
+
+while :
+do
+	rm -f xxsym
+	cc xxsym.cpp -lGL -lbe -ldevice -lgame -lmedia -lmidi -lnetwork -lroot -ltextencoding -ltracker -ltranslation -o xxsym 2> xxerr
+#       cc xxsym.cpp -nodefaultlibs -lGL -lbe -ldevice -lgame -lmedia -lmidi -lroot -ltextencoding -ltracker -ltranslation 2> xxerr
+ 
+	#  If xxsym file exists, it works.
+	if test -e xxsym
+	then break
+	fi
+
+	./mkfilter < xxerr > xxerrfilter
+	#  How many lines in error filter?
+	#  If empty, it's not going to help.
+	set $(echo $(wc -l xxerrfilter))
+	lose=$1
+	case $lose in
+	0) echo 'stuck, aborting.' >&2; exit 1;;
+	esac
+
+	xp=x$xp
+	mv xxsym.cpp ${xp}xxsym.cpp
+	echo $name: next iteration drops $lose symbols >&2
+	sed -f xxerrfilter < ${xp}xxsym.cpp > xxsym.cpp
+
+	#  Does symbol definer define any symbols?
+	if fgrep -q B_ xxsym.cpp
+	then :
+	else
+		echo $name: no symbols remaining >&2
+		exit 1
+	fi
+done
+
+./xxsym | ./minus > $name

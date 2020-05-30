@@ -1,0 +1,29 @@
+#  Copyright 1999 by Donn Cave, Seattle, Washington, USA.
+#  All rights reserved.  Permission to copy, modify and distribute this
+#  material is hereby granted, without fee, provided that the above
+#  copyright notice appear in all copies.
+
+include
+	<interface/OutlineListView.h>
+
+class OutlineListView handler
+	base ListView
+	constructor
+		param BRect@1,const char*@2,list_view_type@3,uint32@4,uint32@5
+	function BOutlineListView
+		input BRect@1,const char*@2,list_view_type@3=B_SINGLE_SELECTION_LIST,uint32@4=B_FOLLOW_LEFT|B_FOLLOW_TOP,uint32@5=B_WILL_DRAW|B_FRAME_EVENTS|B_NAVIGABLE
+		return BListView*%0
+	function AddUnder
+		input BListItem*@1!incref,BListItem*@2
+		return bool%0
+	function MessageReceived BHandler::MessageReceived
+		input BMessage*@1
+	function ItemUnderAt
+		input BListItem*@1,bool@2,uint32@3
+		return BListItem*%0
+	function CountItemsUnder
+		input BListItem*@1,bool@2
+		return int32%0
+	function Superitem
+		input BListItem*@1
+		return BListItem*%0

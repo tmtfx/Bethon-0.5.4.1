@@ -1,0 +1,28 @@
+#!/bin/awk -f
+#
+#  Convert B_UNSUPPORTED = 0x8000600e
+#  to      B_UNSUPPORTED = -2147459058
+#
+#  For status_t, we have in effect been using PyInt_FromLong
+#  instead of PyLong_FromUnsignedLong or whatever, hence the
+#  negative values.  In Python 2.4, literal 0x8000600e is
+#  a positive long, so it needs to be converted to match.
+#
+function unhex(a, 	h, v, k)
+{
+	h = "0123456789abcdef"
+	v = 0
+	for (i = 1; i <= length(a); ++i) {
+		k = index(h, substr(a, i, 1)) - 1
+		if (k < 0)
+			return v
+		v = v * 16 + k
+	}
+	return v
+}
+{
+	if (NF == 3 && $2 == "=" && length($3) == 10 && $3 ~ /^0x8/)
+		printf "%s = %8.0f\n", $1, (unhex(substr($3, 3)) - 4294967296)
+	else
+		print
+}

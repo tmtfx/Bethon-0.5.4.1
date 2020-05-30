@@ -1,0 +1,13 @@
+#!/bin/awk -f
+{
+	n = split($0, ln, /[ \t,|=\[\]();+-]+/)
+	for (i = 1; i <= n; ++i) {
+		w = ln[i]
+		if (w ~ /B_[A-Za-z0-9_]*$/) {
+			if (!bsym[w]) {
+				print "	out(\"" w "\", " w ");"
+				bsym[w] = 1
+			}
+		}
+	}
+}
