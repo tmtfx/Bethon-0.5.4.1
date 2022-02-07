@@ -154,6 +154,10 @@ class TextView handler
 		input uint32@1
 	function AllowChar
 		input uint32@1
+	function FindWord
+		input int32@1
+		param int32@1,&int32%2,&int32%3
+		return int32%2,int32%3
 	function SetAlignment
 		input alignment@1
 	function Alignment
